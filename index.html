@@ -1,676 +1,479 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Marlowe Analytics | Trading Infrastructure Map</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>City Road Research — Trading Infrastructure Map</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-  <style>
-    :root {
-      --bg-base: #020408;
-      --bg-surface: rgba(15, 19, 26, 0.72);
-      --bg-panel: rgba(10, 14, 20, 0.88);
-      --bg-card: rgba(255,255,255,0.025);
-      --border-light: rgba(42, 50, 65, 0.82);
-      --text-primary: #F8FAFC;
-      --text-secondary: #94A3B8;
-      --text-muted: #64748B;
-      --accent-blue: #3B82F6;
-      --accent-blue-light: #60A5FA;
-      --accent-glow: rgba(59, 130, 246, 0.32);
-      --success: #10B981;
-      --warning: #F59E0B;
-      --danger: #EF4444;
-      --font-main: 'Inter', sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
-    }
+<style>
+:root{
+  --paper:#F4F2EC; --paper-2:#FBFAF6; --card:#FCFBF8;
+  --ink:#16202E; --ink-2:#27313F; --text:#3C4450;
+  --muted:#717A86; --faint:#9AA1AB;
+  --line:rgba(22,32,46,0.14); --line-soft:rgba(22,32,46,0.07);
+  --accent:#2E5AAC; --accent-deep:#1E3E7B; --accent-soft:rgba(46,90,172,0.08);
+  --cream:#EDEAE0; --cream-mute:#AFB6BF;
+  --gold:#B5893D; --pos:#3F8765; --neg:#B14B3A;
+  --serif:'Fraunces',Georgia,serif;
+  --sans:'Inter',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+}
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+body{
+  font-family:var(--sans); color:var(--text);
+  background:radial-gradient(120% 120% at 50% 0%,#E7E4DB 0%,#DBD8CF 100%);
+  min-height:100vh; -webkit-font-smoothing:antialiased;
+}
+.shell{ max-width:1480px; margin:0 auto; padding:28px 32px 40px; }
 
-    * { box-sizing: border-box; }
+/* Header */
+.head{
+  background:var(--paper); border:1px solid var(--line); border-radius:6px;
+  padding:22px 28px; display:flex; justify-content:space-between; align-items:center;
+  box-shadow:0 8px 24px rgba(20,26,36,0.08);
+}
+.brand{ display:flex; align-items:center; gap:14px; }
+.mark{ width:34px; height:34px; position:relative; }
+.mark span{ position:absolute; inset:0; border:2px solid var(--ink); transform:rotate(45deg); border-radius:4px; }
+.mark span:nth-child(2){ inset:30%; background:var(--accent); border:none; box-shadow:0 0 14px rgba(46,90,172,0.4); }
+.brand-txt{ display:flex; flex-direction:column; line-height:1.1; }
+.brand-name{ font-family:var(--serif); font-weight:600; font-size:1.35rem; color:var(--ink); letter-spacing:0.01em; }
+.brand-name em{ font-style:normal; color:var(--muted); font-weight:400; }
+.brand-sub{ font-family:var(--mono); font-size:0.68rem; color:var(--faint); letter-spacing:0.22em; text-transform:uppercase; margin-top:3px; }
+.head-meta{ display:flex; align-items:center; gap:10px; }
+.tag-pill{ font-family:var(--mono); font-size:0.7rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); border:1px solid var(--line); padding:6px 12px; border-radius:30px; background:var(--paper-2); }
+.tag-pill i{ color:var(--accent); margin-right:6px; }
+.tag-pill .dot{ display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--accent); margin-right:7px; vertical-align:middle; animation:pulse 2.2s infinite; }
+@keyframes pulse{ 0%{opacity:1;} 50%{opacity:0.35;} 100%{opacity:1;} }
 
-    body {
-      font-family: var(--font-main);
-      background-color: var(--bg-base);
-      background-image:
-        radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.13) 0%, transparent 42%),
-        linear-gradient(rgba(42, 50, 65, 0.11) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(42, 50, 65, 0.11) 1px, transparent 1px);
-      background-size: 100% 100%, 40px 40px, 40px 40px;
-      color: var(--text-primary);
-      margin: 0;
-      padding: 20px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
+/* Environment router */
+.router{
+  margin-top:18px; display:flex; gap:4px; background:var(--paper);
+  border:1px solid var(--line); border-radius:6px; padding:4px;
+}
+.router-btn{
+  flex:1; padding:13px 14px; background:none; border:none; cursor:pointer;
+  font-family:var(--sans); font-weight:500; font-size:0.84rem; color:var(--muted);
+  border-radius:4px; transition:all .18s; display:flex; align-items:center; justify-content:center; gap:9px;
+}
+.router-btn:hover{ color:var(--ink); background:var(--paper-2); }
+.router-btn.active{ background:var(--ink); color:var(--cream); }
+.router-btn .tier{ font-family:var(--mono); font-size:0.6rem; letter-spacing:0.1em; padding:2px 6px; border-radius:20px; background:rgba(255,255,255,0.14); }
+.router-btn:not(.active) .tier{ background:var(--accent-soft); color:var(--accent); }
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 25px;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-light);
-      border-radius: 8px;
-      backdrop-filter: blur(10px);
-      margin-bottom: 15px;
-      flex-shrink: 0;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.22);
-    }
+/* Layout */
+.grid{
+  margin-top:18px; display:grid;
+  grid-template-columns:minmax(0,1fr) 440px;
+  grid-template-rows:auto minmax(0,1fr);
+  gap:14px;
+  flex:1; min-height:0;
+}
+.panel{ background:var(--paper); border:1px solid var(--line); border-radius:6px; padding:22px 24px; min-height:0; }
+.panel-head{ display:flex; justify-content:space-between; align-items:baseline; border-bottom:1px solid var(--line); padding-bottom:14px; margin-bottom:18px; }
+.panel-title{ font-family:var(--mono); font-size:0.72rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--accent); }
+.panel-rn{ font-family:var(--mono); font-size:0.66rem; letter-spacing:0.14em; color:var(--faint); }
+.h-bar{ width:14px; height:1px; background:var(--accent); display:inline-block; margin-right:8px; vertical-align:middle; }
 
-    .logo-area { display: flex; align-items: center; gap: 15px; }
-    .logo-mark { width: 32px; height: 32px; position: relative; display: flex; align-items: center; justify-content: center; }
-    .logo-mark::before { content:''; position: absolute; width: 100%; height: 100%; border: 1.5px solid var(--border-light); transform: rotate(45deg); border-radius: 3px; }
-    .logo-mark::after { content:''; position: absolute; width: 45%; height: 45%; background: var(--accent-blue); transform: rotate(45deg); box-shadow: 0 0 15px var(--accent-blue); border-radius: 1px; }
+/* Flow map */
+.arch-panel{ grid-column:1/2; grid-row:1/2; min-height:0; }
+.flow{ display:flex; align-items:stretch; justify-content:space-between; gap:0; padding:6px 0 2px; }
+.node{
+  flex:1; display:flex; flex-direction:column; gap:10px; align-items:flex-start;
+  background:var(--card); border:1px solid var(--line); border-radius:6px;
+  padding:18px 16px; cursor:pointer; transition:all .26s cubic-bezier(0.16,1,0.3,1);
+  position:relative; z-index:2; min-height:150px;
+}
+.node:hover{ transform:translateY(-4px); border-color:rgba(46,90,172,0.45); }
+.node.active{ border-color:var(--accent); background:#fff; box-shadow:0 12px 30px rgba(46,90,172,0.14); transform:translateY(-4px); }
+.node .stage{ font-family:var(--mono); font-size:0.6rem; letter-spacing:0.16em; color:var(--faint); text-transform:uppercase; }
+.node.active .stage{ color:var(--accent); }
+.node .ico{ font-size:1.35rem; color:var(--muted); transition:color .25s; }
+.node.active .ico{ color:var(--accent); }
+.node .nlbl{ font-family:var(--serif); font-weight:600; font-size:0.98rem; color:var(--ink); line-height:1.2; }
+.node .nsub{ font-family:var(--mono); font-size:0.64rem; color:var(--muted); line-height:1.4; letter-spacing:0.02em; }
+.edge{ flex:0 0 38px; align-self:center; height:2px; background:var(--line); position:relative; overflow:hidden; margin:0 -2px; z-index:1; }
+.edge::after{ content:''; position:absolute; top:-1px; left:0; width:100%; height:4px; background:linear-gradient(90deg,transparent,var(--accent),transparent); background-size:200% 100%; animation:flow 2s linear infinite; opacity:0.5; }
+@keyframes flow{ 0%{ background-position:100% 0; } 100%{ background-position:-100% 0; } }
 
-    .header-title { display: flex; flex-direction: column; }
-    .header-title strong { font-size: 1.1rem; letter-spacing: 0.15em; text-transform: uppercase; }
-    .header-title span { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-secondary); letter-spacing: 0.2em; text-transform: uppercase; }
+.arch-caption{ color:var(--muted); font-size:0.88rem; line-height:1.55; margin:18px 0 0; padding-top:16px; border-top:1px solid var(--line-soft); }
+.arch-caption strong{ color:var(--ink); font-weight:600; }
 
-    .sys-status { display: flex; align-items: center; gap: 20px; font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-secondary); }
-    .status-badge { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: rgba(59, 130, 246, 0.10); border: 1px solid var(--accent-blue); border-radius: 4px; color: var(--accent-blue-light); }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-blue); box-shadow: 0 0 8px var(--accent-blue); animation: pulse 2s infinite; }
-    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+/* Telemetry */
+.tele-panel{ grid-column:2/3; grid-row:1/3; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+.detail{ flex:1; overflow-y:auto; min-height:0; padding-right:4px; margin-bottom:18px; }
+.kpi-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+.kpi-box{ background:var(--card); border:1px solid var(--line); border-radius:5px; padding:13px 14px; }
+.kpi-lbl{ font-family:var(--mono); font-size:0.6rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+.kpi-val{ font-family:var(--mono); font-size:0.95rem; font-weight:600; color:var(--ink); letter-spacing:0.02em; }
+.kpi-val.accent{ color:var(--accent); }
 
-    .platform-router {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
-      flex-shrink: 0;
-      background: rgba(0,0,0,0.3);
-      padding: 6px;
-      border-radius: 8px;
-      border: 1px solid var(--border-light);
-    }
+.spec-list{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:11px; }
+.spec-item{ display:flex; gap:11px; align-items:flex-start; font-size:0.85rem; line-height:1.5; color:var(--text); }
+.spec-item i{ color:var(--accent); margin-top:4px; font-size:0.6rem; flex:0 0 auto; }
 
-    .router-btn {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      background: transparent;
-      color: var(--text-secondary);
-      font-family: var(--font-main);
-      font-weight: 700;
-      font-size: 0.76rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    .router-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.035); }
-    .router-btn.active { background: var(--accent-blue); color: #fff; box-shadow: 0 0 15px rgba(59, 130, 246, 0.35); }
+/* Risk gate */
+.gate{ border-top:1px solid var(--line); padding-top:16px; flex-shrink:0; }
+.gate-desc{ font-size:0.8rem; color:var(--muted); line-height:1.5; margin:10px 0 16px; }
+.gate-status{
+  padding:12px; border-radius:5px; text-align:center; font-family:var(--mono);
+  font-weight:600; font-size:0.74rem; letter-spacing:0.06em; text-transform:uppercase;
+  margin-bottom:16px; transition:all .25s; color:#fff; background:var(--pos);
+}
+.gate-status.failed{ background:var(--neg); }
+.slider-group{ margin-bottom:13px; }
+.slider-group:last-child{ margin-bottom:0; }
+.slider-head{ display:flex; justify-content:space-between; font-family:var(--mono); font-size:0.66rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-bottom:7px; }
+.slider-head .val{ color:var(--ink); font-weight:600; }
+.slider{ width:100%; -webkit-appearance:none; height:3px; background:var(--line); border-radius:3px; outline:none; }
+.slider::-webkit-slider-thumb{ -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:var(--accent); cursor:pointer; box-shadow:0 0 0 4px rgba(46,90,172,0.12); }
+.slider::-moz-range-thumb{ width:14px; height:14px; border:none; border-radius:50%; background:var(--accent); cursor:pointer; }
 
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 420px;
-      grid-template-rows: auto minmax(0, 1fr);
-      gap: 20px;
-      flex: 1;
-      min-height: 0;
-    }
+/* Event stream */
+.term-panel{ grid-column:1/2; grid-row:2/3; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+.term{
+  /* Keep the simulated stream inside its own scroll box so it cannot stretch the grid and move the risk gate. */
+  flex:0 0 clamp(280px,34vh,360px); min-height:0; max-height:clamp(280px,34vh,360px);
+  background:var(--ink); border:1px solid var(--line); border-radius:6px;
+  padding:16px 18px; overflow-y:auto; overscroll-behavior:contain; font-family:var(--mono); font-size:0.76rem; line-height:1.62;
+}
+.log{ display:flex; gap:14px; margin-bottom:3px; }
+.log-time{ color:#5C6B82; min-width:104px; flex:0 0 auto; }
+.log-lvl{ min-width:46px; flex:0 0 auto; font-weight:600; }
+.log-lvl.info{ color:#7FA0D8; }
+.log-lvl.exec{ color:#6FB89A; }
+.log-lvl.warn{ color:#D2A24C; }
+.log-lvl.crit{ color:#D9836F; }
+.log-msg{ color:var(--cream); }
+.log-msg.crit{ color:#E6A293; }
 
-    .panel {
-      background: var(--bg-panel);
-      border: 1px solid var(--border-light);
-      border-radius: 8px;
-      padding: 25px;
-      display: flex;
-      flex-direction: column;
-      backdrop-filter: blur(10px);
-      min-height: 0;
-      box-shadow: 0 12px 35px rgba(0,0,0,0.26);
-    }
+.foot-note{ font-family:var(--mono); font-size:0.7rem; letter-spacing:0.04em; color:var(--faint); margin-top:18px; line-height:1.5; text-align:center; }
 
-    .panel-header {
-      font-size: 0.82rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-secondary);
-      border-bottom: 1px solid var(--border-light);
-      padding-bottom: 10px;
-      margin-bottom: 20px;
-      font-weight: 700;
-      display: flex;
-      justify-content: space-between;
-      gap: 14px;
-      flex-shrink: 0;
-    }
+::-webkit-scrollbar{ width:7px; height:7px; }
+::-webkit-scrollbar-track{ background:transparent; }
+::-webkit-scrollbar-thumb{ background:var(--line); border-radius:4px; }
+.term::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.18); }
 
-    .arch-panel { grid-column: 1 / 2; grid-row: 1 / 2; justify-content: center; }
-    .arch-diagram { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 20px 0; }
-
-    .arch-node {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-light);
-      padding: 20px 10px;
-      border-radius: 8px;
-      width: 165px;
-      min-height: 145px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-      position: relative;
-      z-index: 2;
-    }
-    .arch-node:hover { transform: translateY(-5px); border-color: rgba(59, 130, 246, 0.5); background: rgba(59, 130, 246, 0.06); }
-    .arch-node.active { border-color: var(--accent-blue); background: rgba(59, 130, 246, 0.1); box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2); transform: translateY(-5px) scale(1.03); }
-
-    .arch-icon { font-size: 1.8rem; color: var(--text-secondary); transition: color 0.3s; }
-    .arch-node.active .arch-icon { color: var(--accent-blue); text-shadow: 0 0 15px var(--accent-blue); }
-    .arch-label { font-size: 0.76rem; font-weight: 700; line-height: 1.35; text-transform: uppercase; letter-spacing: 0.02em; }
-    .arch-sub { font-size: 0.62rem; color: var(--text-secondary); font-family: var(--font-mono); line-height: 1.35; }
-
-    .arch-edge { flex: 1; height: 2px; background: rgba(42, 50, 65, 0.55); position: relative; z-index: 1; margin: 0 -6px; overflow: hidden; }
-    .edge-flow { position: absolute; top: -1px; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, var(--accent-blue), transparent); background-size: 200% 100%; animation: flowData 1.5s linear infinite; opacity: 0.52; }
-    @keyframes flowData { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
-
-    .arch-caption { text-align: center; color: var(--text-secondary); font-size: 0.85rem; margin: 10px 0 0; line-height: 1.5; }
-    .arch-caption strong { color: var(--accent-blue-light); }
-
-    .telemetry-panel { grid-column: 2 / 3; grid-row: 1 / 3; overflow: hidden; }
-    .detail-view { flex: 1; display: flex; flex-direction: column; opacity: 1; transition: opacity 0.22s; margin-bottom: 20px; overflow-y: auto; min-height: 0; padding-right: 5px; }
-
-    .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; flex-shrink: 0; }
-    .kpi-box { background: var(--bg-base); border: 1px solid var(--border-light); padding: 12px; border-radius: 6px; }
-    .kpi-lbl { font-size: 0.6rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
-    .kpi-val { font-family: var(--font-mono); font-size: 1.08rem; font-weight: 700; color: var(--text-primary); text-transform: uppercase; }
-
-    .spec-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
-    .spec-item { display: flex; align-items: flex-start; gap: 10px; font-size: 0.8rem; line-height: 1.48; color: var(--text-secondary); }
-    .spec-item i { color: var(--accent-blue); margin-top: 3px; font-size: 0.72rem; }
-
-    .gauntlet-section { border-top: 1px solid var(--border-light); padding-top: 15px; margin-top: auto; flex-shrink: 0; }
-    .gauntlet-status { padding: 10px; border-radius: 6px; text-align: center; font-weight: 800; font-size: 0.78rem; margin-bottom: 12px; transition: all 0.25s; color: #fff; background: var(--success); box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
-    .gauntlet-status.failed { background: var(--danger) !important; box-shadow: 0 0 20px rgba(239, 68, 68, 0.4) !important; }
-
-    .slider-group { margin-bottom: 12px; }
-    .slider-header { display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; gap: 10px; }
-    .val-badge { font-family: var(--font-mono); color: var(--text-primary); font-weight: bold; }
-    .control-slider { width: 100%; -webkit-appearance: none; background: var(--border-light); height: 4px; border-radius: 2px; outline: none; margin: 5px 0; }
-    .control-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent-blue); cursor: pointer; box-shadow: 0 0 8px var(--accent-blue); }
-
-    .terminal-panel { grid-column: 1 / 2; grid-row: 2 / 3; min-height: 0; }
-    .terminal-window { background: #020305; border: 1px solid var(--border-light); border-radius: 6px; flex: 1; padding: 15px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.78rem; line-height: 1.58; box-shadow: inset 0 0 30px rgba(0,0,0,0.8); min-height: 0; }
-    .log-entry { margin-bottom: 4px; display: flex; gap: 15px; }
-    .log-time { color: #475569; min-width: 105px; }
-    .log-level-info { color: var(--accent-blue); min-width: 45px; }
-    .log-level-exec { color: var(--success); min-width: 45px; }
-    .log-level-warn { color: var(--warning); min-width: 45px; }
-    .log-level-crit { color: var(--danger); min-width: 45px; }
-    .log-msg { color: var(--text-primary); }
-
-    .text-glow { text-shadow: 0 0 10px rgba(255,255,255,0.22); }
-    .number-flicker { display: inline-block; min-width: 60px; }
-
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
-
-    @media (max-width: 1180px) {
-      body { overflow: auto; height: auto; }
-      .dashboard-grid { grid-template-columns: 1fr; grid-template-rows: auto auto auto; }
-      .telemetry-panel, .arch-panel, .terminal-panel { grid-column: 1; grid-row: auto; }
-      .arch-diagram { overflow-x: auto; justify-content: flex-start; }
-      .arch-node { flex: 0 0 165px; }
-      .arch-edge { flex: 0 0 55px; }
-    }
-  </style>
+@media (max-width:1180px){
+  html,body{ height:auto; }
+  body{ overflow:auto; }
+  .shell{ height:auto; overflow:visible; padding:28px 32px 60px; }
+  .grid{ flex:none; height:auto; grid-template-columns:1fr; grid-template-rows:auto auto auto; }
+  .arch-panel,.tele-panel,.term-panel{ grid-column:1; grid-row:auto; overflow:visible; }
+  .tele-panel{ max-height:none; }
+  .detail{ overflow-y:visible; max-height:none; }
+  .term{ flex:1 1 auto; min-height:280px; max-height:420px; }
+  .flow{ overflow-x:auto; }
+  .node{ flex:0 0 180px; }
+  .edge{ flex:0 0 30px; }
+}
+@media (max-width:680px){
+  .shell{ padding:16px; }
+  .head-meta{ display:none; }
+  .router{ flex-wrap:wrap; }
+  .router-btn{ flex:1 1 45%; }
+}
+</style>
 </head>
 <body>
-  <header>
-    <div class="logo-area">
-      <div class="logo-mark"></div>
-      <div class="header-title">
-        <strong>Marlowe Analytics</strong>
-        <span>Trading Infrastructure Map</span>
+
+<div class="shell">
+
+  <!-- HEADER -->
+  <div class="head">
+    <div class="brand">
+      <div class="mark"><span></span><span></span></div>
+      <div class="brand-txt">
+        <div class="brand-name">City Road <em>Research</em></div>
+        <div class="brand-sub">Trading Infrastructure Map</div>
       </div>
     </div>
-    <div class="sys-status">
-      <span>ARCHITECTURE STATUS: <span style="color:var(--accent-blue-light)">BUILD ROADMAP</span></span>
-      <div class="status-badge"><div class="status-dot"></div>RISK-GATED DEPLOYMENT</div>
+    <div class="head-meta">
+      <span class="tag-pill"><span class="dot"></span>Build roadmap · risk-gated</span>
+      <span class="tag-pill"><i class="fa-solid fa-sitemap"></i>Architecture · v3.0</span>
     </div>
-  </header>
-
-  <div class="platform-router">
-    <button class="router-btn active" onclick="switchPlatform('spine', this)"><i class="fa-solid fa-network-wired"></i> Shared Trading Spine</button>
-    <button class="router-btn" onclick="switchPlatform('hyperliquid', this)"><i class="fa-solid fa-layer-group"></i> Hyperliquid MM</button>
-    <button class="router-btn" onclick="switchPlatform('prediction', this)"><i class="fa-solid fa-chart-pie"></i> Prediction Markets</button>
-    <button class="router-btn" onclick="switchPlatform('research', this)"><i class="fa-solid fa-microscope"></i> Research & Alpha</button>
   </div>
 
-  <div class="dashboard-grid">
+  <!-- ENVIRONMENT ROUTER -->
+  <div class="router">
+    <button class="router-btn active" onclick="switchEnv('spine', this)"><i class="fa-solid fa-network-wired"></i>Shared Trading Spine <span class="tier">CORE</span></button>
+    <button class="router-btn" onclick="switchEnv('hyperliquid', this)"><i class="fa-solid fa-layer-group"></i>Hyperliquid MM <span class="tier">TIER 1</span></button>
+    <button class="router-btn" onclick="switchEnv('prediction', this)"><i class="fa-solid fa-chart-pie"></i>Prediction Markets <span class="tier">TIER 1 · 2</span></button>
+    <button class="router-btn" onclick="switchEnv('research', this)"><i class="fa-solid fa-flask"></i>Research &amp; Alpha <span class="tier">TIER 2</span></button>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="grid">
+
+    <!-- FLOW MAP -->
     <div class="panel arch-panel">
-      <div class="panel-header" id="topology-title">Architecture Flow Map : Shared Trading Spine</div>
-      <div class="arch-diagram">
-        <div class="arch-node active" id="node-0" onclick="selectNode('data')">
-          <i class="fa-solid fa-plug-circle-bolt arch-icon" id="ico-node-0"></i>
-          <div class="arch-label" id="lbl-node-0">Venue Adapters</div>
-          <div class="arch-sub" id="sub-node-0">HL / PM / Kalshi / Odds</div>
+      <div class="panel-head">
+        <span class="panel-title"><span class="h-bar"></span><span id="flowTitle">Architecture flow · shared trading spine</span></span>
+        <span class="panel-rn">Data → Risk → Execution</span>
+      </div>
+      <div class="flow" id="flow">
+        <div class="node active" id="node-0" onclick="selectNode('data')">
+          <span class="stage">01 · Ingest</span>
+          <i class="fa-solid fa-plug-circle-bolt ico" id="ico-0"></i>
+          <div class="nlbl" id="lbl-0">Venue Adapters</div>
+          <div class="nsub" id="sub-0">HL · Polymarket · Kalshi · Odds</div>
         </div>
-        <div class="arch-edge"><div class="edge-flow"></div></div>
-        <div class="arch-node" id="node-1" onclick="selectNode('compute')">
-          <i class="fa-solid fa-database arch-icon" id="ico-node-1"></i>
-          <div class="arch-label" id="lbl-node-1">Data Lake & Replay</div>
-          <div class="arch-sub" id="sub-node-1">ClickHouse / Postgres / S3</div>
+        <div class="edge"></div>
+        <div class="node" id="node-1" onclick="selectNode('compute')">
+          <span class="stage">02 · Store</span>
+          <i class="fa-solid fa-database ico" id="ico-1"></i>
+          <div class="nlbl" id="lbl-1">Data Lake &amp; Replay</div>
+          <div class="nsub" id="sub-1">ClickHouse · Postgres · S3</div>
         </div>
-        <div class="arch-edge"><div class="edge-flow"></div></div>
-        <div class="arch-node" id="node-2" onclick="selectNode('engine')">
-          <i class="fa-solid fa-shield-halved arch-icon" id="ico-node-2"></i>
-          <div class="arch-label" id="lbl-node-2">Strategy + Risk Engine</div>
-          <div class="arch-sub" id="sub-node-2">Quoting / Alpha / Risk</div>
+        <div class="edge"></div>
+        <div class="node" id="node-2" onclick="selectNode('engine')">
+          <span class="stage">03 · Decide</span>
+          <i class="fa-solid fa-shield-halved ico" id="ico-2"></i>
+          <div class="nlbl" id="lbl-2">Strategy + Risk Engine</div>
+          <div class="nsub" id="sub-2">Quoting · Alpha · Risk</div>
         </div>
-        <div class="arch-edge"><div class="edge-flow"></div></div>
-        <div class="arch-node" id="node-3" onclick="selectNode('exec')">
-          <i class="fa-solid fa-route arch-icon" id="ico-node-3"></i>
-          <div class="arch-label" id="lbl-node-3">Execution Gateway</div>
-          <div class="arch-sub" id="sub-node-3">Order Routing / Reconcile</div>
+        <div class="edge"></div>
+        <div class="node" id="node-3" onclick="selectNode('exec')">
+          <span class="stage">04 · Execute</span>
+          <i class="fa-solid fa-route ico" id="ico-3"></i>
+          <div class="nlbl" id="lbl-3">Execution Gateway</div>
+          <div class="nsub" id="sub-3">Routing · Reconcile</div>
         </div>
       </div>
-      <p class="arch-caption" id="arch-caption">
+      <p class="arch-caption" id="caption">
         One unified trading spine supports <strong>market making</strong>, <strong>prediction-market execution</strong> and <strong>proprietary alpha</strong> through the same data, replay, risk and reconciliation stack.
       </p>
     </div>
 
-    <div class="panel telemetry-panel">
-      <div class="panel-header" id="detail-header" style="color: var(--accent-blue-light);">Node Telemetry: Venue Adapters</div>
-      <div class="detail-view" id="detail-view"></div>
+    <!-- TELEMETRY + RISK GATE -->
+    <div class="panel tele-panel">
+      <div class="panel-head">
+        <span class="panel-title"><span class="h-bar"></span><span id="detailHeader">Venue Adapters</span></span>
+        <span class="panel-rn">Node detail</span>
+      </div>
+      <div class="detail" id="detail"></div>
 
-      <div class="gauntlet-section">
-        <div class="panel-header" style="border: none; margin-bottom: 10px;"><i class="fa-solid fa-shield-halved" style="margin-right: 5px;"></i> Pre-Trade Risk Gate</div>
-        <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0; margin-bottom: 15px; line-height: 1.5;" id="gauntlet-desc">
-          Every strategy routes through the same pre-trade checks for data freshness, expected net edge, adverse selection and exposure limits.
-        </p>
-        <div class="gauntlet-status" id="g-result">RISK GATE PASSED</div>
+      <div class="gate">
+        <div class="panel-title" style="color:var(--accent);"><i class="fa-solid fa-shield-halved" style="margin-right:6px;"></i>Pre-trade risk gate</div>
+        <p class="gate-desc" id="gateDesc">Every strategy routes through the same pre-trade checks for data freshness, expected net edge, adverse selection and exposure limits.</p>
+        <div class="gate-status" id="gateResult">Risk gate passed</div>
 
         <div class="slider-group">
-          <div class="slider-header"><label>Data Freshness / Latency</label><span class="val-badge" id="g-lat-val">75 ms</span></div>
-          <input type="range" class="control-slider" id="g-lat" min="1" max="500" value="75" oninput="updateGauntlet()">
+          <div class="slider-head"><label>Data freshness / latency</label><span class="val" id="latVal">75 ms</span></div>
+          <input type="range" class="slider" id="lat" min="1" max="500" value="75" oninput="updateGate()">
         </div>
         <div class="slider-group">
-          <div class="slider-header"><label>Expected Net Edge</label><span class="val-badge" id="g-edge-val">4 bps</span></div>
-          <input type="range" class="control-slider" id="g-edge" min="-5" max="30" value="4" oninput="updateGauntlet()">
+          <div class="slider-head"><label>Expected net edge</label><span class="val" id="edgeVal">4 bps</span></div>
+          <input type="range" class="slider" id="edge" min="-5" max="30" value="4" oninput="updateGate()">
         </div>
-        <div class="slider-group" style="margin-bottom:0;">
-          <div class="slider-header"><label>Adverse Selection Score</label><span class="val-badge" id="g-adv-val">35 / 100</span></div>
-          <input type="range" class="control-slider" id="g-adv" min="0" max="100" value="35" oninput="updateGauntlet()">
+        <div class="slider-group">
+          <div class="slider-head"><label>Adverse-selection score</label><span class="val" id="advVal">35 / 100</span></div>
+          <input type="range" class="slider" id="adv" min="0" max="100" value="35" oninput="updateGate()">
         </div>
       </div>
     </div>
 
-    <div class="panel terminal-panel">
-      <div class="panel-header">
-        <span><i class="fa-solid fa-terminal" style="margin-right: 8px;"></i> Simulated Event Stream</span>
-        <span style="color: var(--accent-blue-light); font-family: var(--font-mono); font-size: 0.75rem;"><i class="fa-solid fa-circle-play"></i> ARCHITECTURE DEMO</span>
+    <!-- EVENT STREAM -->
+    <div class="panel term-panel">
+      <div class="panel-head">
+        <span class="panel-title"><span class="h-bar"></span>Simulated event stream</span>
+        <span class="panel-rn"><i class="fa-solid fa-circle-play" style="margin-right:5px;"></i>Architecture demo</span>
       </div>
-      <div class="terminal-window" id="terminal"></div>
+      <div class="term" id="term"></div>
     </div>
+
   </div>
 
-  <script>
-    let currentPlatform = 'spine';
-    let currentNode = 'data';
+  <p class="foot-note">© City Road Research Ltd. · Illustrative target architecture. Latency, region and capacity figures are design targets, not guarantees, and should be validated against live evidence.</p>
 
-    const platformData = {
-      spine: {
-        title: 'Architecture Flow Map : Shared Trading Spine',
-        caption: 'One unified trading spine supports market making, prediction-market execution and proprietary alpha through the same data, replay, risk and reconciliation stack.',
-        nodes: ['Venue Adapters', 'Data Lake & Replay', 'Strategy + Risk Engine', 'Execution Gateway'],
-        subs: ['HL / PM / Kalshi / Odds', 'ClickHouse / Postgres / S3', 'Quoting / Alpha / Risk', 'Order Routing / Reconcile'],
-        icons: ['fa-plug-circle-bolt', 'fa-database', 'fa-shield-halved', 'fa-route'],
-        desc: 'Every market data feed, order, fill and risk event is normalised into the same event model before being used for quoting, alpha research, backtesting, capital allocation and execution.',
-        limit: 180,
-        advLimit: 70,
-        data: {
-          header: '01. Venue Adapter Layer',
-          kpi1: { label: 'Adapter Scope', val: '4 VENUES' }, kpi2: { label: 'Event Model', val: 'UNIFIED' },
-          kpi3: { label: 'Data Status', val: 'PLANNED' }, kpi4: { label: 'Risk Route', val: 'REQUIRED' },
-          specs: [
-            'Normalises Hyperliquid books, prediction-market contracts, odds feeds and external reference prices into one schema.',
-            'Separates venue-specific API logic from the common strategy, risk, replay and reconciliation layers.',
-            'Captures orders, fills, cancellations and venue events as first-class data, not just trading outputs.'
-          ]
-        },
-        compute: {
-          header: '02. Data Lake, Hot State & Replay',
-          kpi1: { label: 'Tick Store', val: 'CLICKHOUSE' }, kpi2: { label: 'Metadata', val: 'POSTGRES' },
-          kpi3: { label: 'Hot State', val: 'REDIS' }, kpi4: { label: 'Archive', val: 'S3 / PARQUET' },
-          specs: [
-            'ClickHouse stores tick data, reconstructed books, markouts and fill analytics for strategy review.',
-            'Postgres tracks strategy configuration, venue metadata, trade state and capital allocation settings.',
-            'S3/Parquet archive enables replay, reproducible research and longer-horizon model validation.'
-          ]
-        },
-        engine: {
-          header: '03. Strategy + Risk Engine',
-          kpi1: { label: 'Strategy State', val: 'RISK-GATED' }, kpi2: { label: 'Capital Caps', val: 'ENFORCED' },
-          kpi3: { label: 'Drawdown', val: 'LIMITED' }, kpi4: { label: 'Quote State', val: 'DYNAMIC' },
-          specs: [
-            'Runs market-making logic, price-lag signals, sports/event models and research-derived strategy modules behind one risk layer.',
-            'Risk daemon enforces venue exposure, strategy exposure, stale-data checks, drawdown controls and liquidity-pull rules.',
-            'Capital allocation is explicit: each strategy receives capped sizing rather than assumed unlimited opportunity capture.'
-          ]
-        },
-        exec: {
-          header: '04. Execution, Reconciliation & Controls',
-          kpi1: { label: 'Order Path', val: 'GATED' }, kpi2: { label: 'Reconcile', val: 'REQUIRED' },
-          kpi3: { label: 'Kill Switch', val: 'GLOBAL' }, kpi4: { label: 'Audit Trail', val: 'PERSISTED' },
-          specs: [
-            'Execution gateways submit, amend and cancel orders only after risk checks pass.',
-            'Reconciliation compares venue orders, fills, balances, settlement status and internal expected state.',
-            'Global and strategy-level kill switches can block trading, cancel exposure and force manual review.'
-          ]
-        },
-        logs: [
-          { level: 'INFO', msg: 'EVENT_BUS: Normalised HL book update into unified market event schema' },
-          { level: 'INFO', msg: 'REPLAY: Stored order book delta batch to ClickHouse' },
-          { level: 'EXEC', msg: 'RISK: Venue exposure within configured limits' },
-          { level: 'WARN', msg: 'RECON: Fill ledger awaiting settlement confirmation for prediction-market leg' }
-        ]
-      },
-      hyperliquid: {
-        title: 'Architecture Flow Map : Hyperliquid Market Making',
-        caption: 'Hyperliquid is the primary cashflow and execution-data engine, focused on selected markets where spread, depth, rebates and adverse-selection conditions are attractive.',
-        nodes: ['HL Market Data', 'Local State & Replay', 'Quoting + Inventory', 'HL Execution Gateway'],
-        subs: ['L2 Books / Trades / Oracle', 'Non-Validator / ClickHouse', 'Fair Value / Skew / Risk', 'Orders / Cancels / Fills'],
-        icons: ['fa-satellite-dish', 'fa-server', 'fa-chart-line', 'fa-bolt'],
-        desc: 'Primary market-making path. Quotes are generated only when data freshness, book depth, expected net edge and inventory limits pass the pre-trade risk gate.',
-        limit: 200,
-        advLimit: 65,
-        data: {
-          header: '01. Hyperliquid Market Data Capture',
-          kpi1: { label: 'Feed Scope', val: 'L2 / TRADES' }, kpi2: { label: 'Oracle Marks', val: 'CAPTURED' },
-          kpi3: { label: 'Freshness', val: 'TARGETED' }, kpi4: { label: 'Book State', val: 'REBUILT' },
-          specs: [
-            'Captures L2 books, trades, funding, oracle marks and selected tokenised asset markets.',
-            'Market data is written into the shared event model for live trading, replay and post-trade markout analysis.',
-            'Feed gaps, stale quotes and book-depth failures route into the same risk-blocking framework.'
-          ]
-        },
-        compute: {
-          header: '02. Tokyo Local State & Replay',
-          kpi1: { label: 'Target Region', val: 'TOKYO' }, kpi2: { label: 'Node Role', val: 'NON-VALIDATOR' },
-          kpi3: { label: 'Replay Store', val: 'CLICKHOUSE' }, kpi4: { label: 'Deployment', val: 'TARGET' },
-          specs: [
-            'Target deployment uses Tokyo / ap-northeast-1 infrastructure for the Hyperliquid market-making stack.',
-            'A non-validator node and direct market-data capture provide local state, replay and order/fill monitoring.',
-            'The model avoids unsupported latency guarantees; measured performance should be tracked as live evidence is collected.'
-          ]
-        },
-        engine: {
-          header: '03. Quoting, Inventory & Adverse Selection',
-          kpi1: { label: 'Quote Logic', val: 'DYNAMIC' }, kpi2: { label: 'Inventory', val: 'SKEWED' },
-          kpi3: { label: 'Adverse Sel.', val: 'SCORED' }, kpi4: { label: 'Liquidity Pull', val: 'ENABLED' },
-          specs: [
-            'Fair value, spread width and quote skew update based on volatility, depth, inventory and adverse-selection score.',
-            'Spread widening and liquidity-pull rules reduce exposure during fast markets or stale-data conditions.',
-            'Fill-based markouts measure whether quoted edge survived fees, slippage and adverse selection.'
-          ]
-        },
-        exec: {
-          header: '04. HL Execution Gateway',
-          kpi1: { label: 'Order Types', val: 'LIMIT / CANCEL' }, kpi2: { label: 'Open Orders', val: 'TRACKED' },
-          kpi3: { label: 'Kill Switch', val: 'VENUE + GLOBAL' }, kpi4: { label: 'Reconcile', val: 'FILLS' },
-          specs: [
-            'Gateway handles order submission, cancel/replace, open-order state and fill reconciliation.',
-            'Execution is blocked when edge is negative, latency is stale, adverse selection is high or inventory caps are breached.',
-            'Every order lifecycle event becomes training data for the market-making and risk models.'
-          ]
-        },
-        logs: [
-          { level: 'INFO', msg: 'HL_DATA: L2 book delta normalised for GOLD market' },
-          { level: 'WARN', msg: 'HL_MM: Spread widened after adverse-selection score increased' },
-          { level: 'EXEC', msg: 'HL_EXEC: Cancel/replace acknowledged; fill reconciliation pending' },
-          { level: 'INFO', msg: 'HL_MARKOUT: Passive fill queued for 5s / 30s / 120s markout window' }
-        ]
-      },
-      prediction: {
-        title: 'Architecture Flow Map : Prediction Market Execution',
-        caption: 'Prediction-market infrastructure supports Polymarket and Kalshi through compliant regional gateways, fair-value comparison, risk-gated execution and settlement reconciliation.',
-        nodes: ['Event / Odds Feeds', 'Market Normalisation', 'Fair Value Engine', 'PM / Kalshi Gateway'],
-        subs: ['Books / Odds / Results', 'Tokens / Contracts / Events', 'Price-Lag / Sports Models', 'CLOB / API / Reconcile'],
-        icons: ['fa-list-check', 'fa-diagram-project', 'fa-scale-balanced', 'fa-building-columns'],
-        desc: 'Prediction-market orders are routed only when event mapping, data freshness, expected edge, liquidity and settlement checks all pass. Venue restrictions are respected by design.',
-        limit: 250,
-        advLimit: 75,
-        data: {
-          header: '01. Event, Odds & Market Feeds',
-          kpi1: { label: 'Feed Types', val: 'BOOKS / ODDS' }, kpi2: { label: 'Results', val: 'TRACKED' },
-          kpi3: { label: 'Mapping', val: 'REQUIRED' }, kpi4: { label: 'Staleness', val: 'MONITORED' },
-          specs: [
-            'Captures prediction-market books, sharp reference prices, odds feeds, event metadata and results data.',
-            'Polymarket and Kalshi are treated as venue adapters into the same market-normalisation pipeline.',
-            'No architecture depends on geoblocking workarounds, restricted-jurisdiction routing or proxy language.'
-          ]
-        },
-        compute: {
-          header: '02. Market Normalisation',
-          kpi1: { label: 'PM Region', val: 'EU COMPLIANT' }, kpi2: { label: 'Kalshi Region', val: 'US GATEWAY' },
-          kpi3: { label: 'Contract State', val: 'RECONCILED' }, kpi4: { label: 'Event IDs', val: 'MAPPED' },
-          specs: [
-            'Polymarket deployment should use compliant EU regions such as Ireland or Frankfurt while respecting venue restrictions.',
-            'Kalshi deployment uses a US execution gateway, with API or FIX support where commercially and technically appropriate.',
-            'Event IDs, token IDs, contracts, outcomes and settlement states are normalised before any strategy can trade.'
-          ]
-        },
-        engine: {
-          header: '03. Fair Value & Price Discovery Engine',
-          kpi1: { label: 'Strategy Set', val: 'CAPPED' }, kpi2: { label: 'Sharp Compare', val: 'ACTIVE' },
-          kpi3: { label: 'Liquidity', val: 'CHECKED' }, kpi4: { label: 'Edge Decay', val: 'MODELLED' },
-          specs: [
-            'Compares prediction-market prices with sharp books, exchange prices and internal sports/event models.',
-            'Price-lag arb is explicitly modelled as decaying over time as competition and market efficiency improve.',
-            'Durable edge is expected to come from research quality, execution quality and disciplined capital allocation.'
-          ]
-        },
-        exec: {
-          header: '04. Prediction-Market Execution Gateway',
-          kpi1: { label: 'Gateways', val: 'PM / KALSHI' }, kpi2: { label: 'Orders', val: 'RISK-GATED' },
-          kpi3: { label: 'Settlement', val: 'MONITORED' }, kpi4: { label: 'Reconcile', val: 'OPEN ORDERS' },
-          specs: [
-            'Routes orders only when fair value, liquidity, venue exposure and event-state checks pass.',
-            'Maintains reconciliation across open orders, fills, balances, CLOB state and settlement status.',
-            'Designed for sports/event strategies and price discovery, not blind market making across every market.'
-          ]
-        },
-        logs: [
-          { level: 'INFO', msg: 'PM_FAIR_VALUE: Sharp-book comparison updated for NFL market' },
-          { level: 'INFO', msg: 'EVENT_MAP: Kalshi contract matched to internal event registry' },
-          { level: 'WARN', msg: 'RISK: Price-lag opportunity clipped by strategy capital cap' },
-          { level: 'EXEC', msg: 'KALSHI_GATEWAY: Contract state reconciled against open orders' }
-        ]
-      },
-      research: {
-        title: 'Architecture Flow Map : Research & Alpha Engine',
-        caption: 'The research layer converts market, odds, event, flow and alternative data into strategies that can be replayed, capped and routed through the same risk-gated execution system.',
-        nodes: ['Alternative Data', 'Feature Store', 'Backtest / Replay', 'Capital Allocation'],
-        subs: ['Odds / CV / Flow / Events', 'Labels / Markouts / Signals', 'Simulations / QA', 'Strategy Caps / Sizing'],
-        icons: ['fa-magnifying-glass-chart', 'fa-table-cells-large', 'fa-flask', 'fa-sliders'],
-        desc: 'Research signals do not trade directly. They become executable only after replay, QA, sizing, liquidity and strategy-level capital limits pass.',
-        limit: 300,
-        advLimit: 80,
-        data: {
-          header: '01. Alternative Data & Research Inputs',
-          kpi1: { label: 'Input Types', val: 'MULTI-SOURCE' }, kpi2: { label: 'Sports Data', val: 'MODELLED' },
-          kpi3: { label: 'Flow Data', val: 'CLASSIFIED' }, kpi4: { label: 'CV Inputs', val: 'RESEARCH' },
-          specs: [
-            'Ingests odds, event data, market microstructure, wallet/flow behaviour and selected computer-vision or player-level features.',
-            'Research inputs are stored separately from executable signals until validated by replay and risk checks.',
-            'The objective is proprietary trading improvement, not third-party data resale.'
-          ]
-        },
-        compute: {
-          header: '02. Feature Store & Labelling',
-          kpi1: { label: 'Labels', val: 'FILLS / MARKOUTS' }, kpi2: { label: 'Feature Store', val: 'VERSIONED' },
-          kpi3: { label: 'QA State', val: 'REQUIRED' }, kpi4: { label: 'Lookahead', val: 'BLOCKED' },
-          specs: [
-            'Feature store tracks labels, markouts, stale-data flags, slippage, fill quality and event outcomes.',
-            'Models are evaluated against realised execution quality rather than theoretical price edge only.',
-            'QA checks are designed to avoid lookahead bias, survivorship bias and false fill labels.'
-          ]
-        },
-        engine: {
-          header: '03. Backtesting, Replay & Signal QA',
-          kpi1: { label: 'Strategies', val: 'REPLAYED' }, kpi2: { label: 'Price Lag', val: 'DECAYING' },
-          kpi3: { label: 'Sports Alpha', val: 'CAPPED' }, kpi4: { label: 'CV Research', val: 'OPTIONALITY' },
-          specs: [
-            'Backtests price-lag, sharp-book inefficiency, sports model alpha, event-driven mispricing and flow-classification strategies.',
-            'Price-lag opportunity is treated as temporary and more competitive over time.',
-            'Computer vision and player-level research are long-term alpha options, not assumed to scale without evidence.'
-          ]
-        },
-        exec: {
-          header: '04. Capital Allocation & Strategy Sizing',
-          kpi1: { label: 'Capital Caps', val: 'STRATEGY LEVEL' }, kpi2: { label: 'Sizing', val: 'LIQUIDITY AWARE' },
-          kpi3: { label: 'Promotion', val: 'QA GATED' }, kpi4: { label: 'Execution Path', val: 'SHARED' },
-          specs: [
-            'Signals are promoted into production only after sufficient replay, live shadowing and risk review.',
-            'Position sizing respects capital availability, event concurrency, venue liquidity and strategy drawdown limits.',
-            'All approved strategies route through the shared execution gateway and reconciliation stack.'
-          ]
-        },
-        logs: [
-          { level: 'INFO', msg: 'BACKTEST: Markout window completed for price-lag strategy' },
-          { level: 'INFO', msg: 'FEATURE_STORE: Player-level feature batch written for model review' },
-          { level: 'WARN', msg: 'QA: Candidate signal rejected due to insufficient executable liquidity' },
-          { level: 'EXEC', msg: 'ALLOCATOR: Strategy sizing reduced after concurrency cap triggered' }
-        ]
-      }
-    };
+</div>
 
-    function switchPlatform(platformId, button) {
-      currentPlatform = platformId;
-      document.querySelectorAll('.router-btn').forEach(btn => btn.classList.remove('active'));
-      button.classList.add('active');
+<script>
+let currentEnv = 'spine';
+let currentNode = 'data';
 
-      const pInfo = platformData[platformId];
-      document.getElementById('topology-title').innerText = pInfo.title;
-      document.getElementById('arch-caption').innerHTML = pInfo.caption;
-      document.getElementById('gauntlet-desc').innerHTML = pInfo.desc;
+const ENV = {
+  spine: {
+    title: 'Architecture flow · shared trading spine',
+    caption: 'One unified trading spine supports <strong>market making</strong>, <strong>prediction-market execution</strong> and <strong>proprietary alpha</strong> through the same data, replay, risk and reconciliation stack.',
+    nodes: ['Venue Adapters','Data Lake &amp; Replay','Strategy + Risk Engine','Execution Gateway'],
+    subs: ['HL · Polymarket · Kalshi · Odds','ClickHouse · Postgres · S3','Quoting · Alpha · Risk','Routing · Reconcile'],
+    icons: ['fa-plug-circle-bolt','fa-database','fa-shield-halved','fa-route'],
+    desc: 'Every market data feed, order, fill and risk event is normalised into one event model before being used for quoting, alpha research, backtesting, capital allocation and execution.',
+    limit: 180, advLimit: 70,
+    data: { header:'Venue Adapter Layer',
+      k:[['Adapter Scope','4 VENUES'],['Event Model','UNIFIED'],['Data Status','PLANNED'],['Risk Route','REQUIRED']],
+      specs:['Normalises Hyperliquid books, prediction-market contracts, odds feeds and reference prices into one schema.','Separates venue-specific API logic from the common strategy, risk, replay and reconciliation layers.','Captures orders, fills, cancellations and venue events as first-class data, not just trading outputs.'] },
+    compute: { header:'Data Lake, Hot State & Replay',
+      k:[['Tick Store','CLICKHOUSE'],['Metadata','POSTGRES'],['Hot State','REDIS'],['Archive','S3 / PARQUET']],
+      specs:['ClickHouse stores tick data, reconstructed books, markouts and fill analytics for strategy review.','Postgres tracks strategy configuration, venue metadata, trade state and capital allocation settings.','S3 / Parquet archive enables replay, reproducible research and longer-horizon model validation.'] },
+    engine: { header:'Strategy + Risk Engine',
+      k:[['Strategy State','RISK-GATED'],['Capital Caps','ENFORCED'],['Drawdown','LIMITED'],['Quote State','DYNAMIC']],
+      specs:['Runs market-making logic, price-lag signals, sports / event models and research-derived modules behind one risk layer.','Risk daemon enforces venue exposure, strategy exposure, stale-data checks, drawdown controls and liquidity-pull rules.','Capital allocation is explicit: each strategy receives capped sizing rather than assumed unlimited opportunity capture.'] },
+    exec: { header:'Execution, Reconciliation & Controls',
+      k:[['Order Path','GATED'],['Reconcile','REQUIRED'],['Kill Switch','GLOBAL'],['Audit Trail','PERSISTED']],
+      specs:['Execution gateways submit, amend and cancel orders only after risk checks pass.','Reconciliation compares venue orders, fills, balances, settlement status and internal expected state.','Global and strategy-level kill switches can block trading, cancel exposure and force manual review.'] },
+    logs:[ ['info','EVENT_BUS: Normalised HL book update into unified market event schema'],['info','REPLAY: Stored order-book delta batch to ClickHouse'],['exec','RISK: Venue exposure within configured limits'],['warn','RECON: Fill ledger awaiting settlement confirmation for prediction-market leg'] ]
+  },
+  hyperliquid: {
+    title: 'Architecture flow · Hyperliquid market making',
+    caption: 'Hyperliquid is the primary <strong>cashflow and execution-data engine</strong> (Tier 1), focused on selected markets where spread, depth, rebates and adverse-selection conditions are attractive.',
+    nodes: ['HL Market Data','Local State &amp; Replay','Quoting + Inventory','HL Execution Gateway'],
+    subs: ['L2 Books · Trades · Oracle','Tokyo Node · ClickHouse','Fair Value · Skew · Risk','Orders · Cancels · Fills'],
+    icons: ['fa-satellite-dish','fa-server','fa-chart-line','fa-bolt'],
+    desc: 'Primary market-making path. Quotes are generated only when data freshness, book depth, expected net edge and inventory limits pass the pre-trade risk gate.',
+    limit: 200, advLimit: 65,
+    data: { header:'Hyperliquid Market Data Capture',
+      k:[['Feed Scope','L2 / TRADES'],['Oracle Marks','CAPTURED'],['Freshness','TARGETED'],['Book State','REBUILT']],
+      specs:['Captures L2 books, trades, funding, oracle marks and selected tokenised-asset markets.','Market data is written into the shared event model for live trading, replay and post-trade markout analysis.','Feed gaps, stale quotes and book-depth failures route into the same risk-blocking framework.'] },
+    compute: { header:'Tokyo Local State & Replay',
+      k:[['Target Region','TOKYO'],['Node Role','NON-VALIDATOR'],['Replay Store','CLICKHOUSE'],['Deployment','TARGET']],
+      specs:['Target deployment uses Tokyo / ap-northeast-1 infrastructure for the Hyperliquid market-making stack.','A non-validator node and direct market-data capture provide local state, replay and order / fill monitoring.','The model avoids unsupported latency guarantees; measured performance is tracked as live evidence is collected.'] },
+    engine: { header:'Quoting, Inventory & Adverse Selection',
+      k:[['Quote Logic','DYNAMIC'],['Inventory','SKEWED'],['Adverse Sel.','SCORED'],['Liquidity Pull','ENABLED']],
+      specs:['Fair value, spread width and quote skew update based on volatility, depth, inventory and adverse-selection score.','Spread widening and liquidity-pull rules reduce exposure during fast markets or stale-data conditions.','Fill-based markouts measure whether quoted edge survived fees, slippage and adverse selection.'] },
+    exec: { header:'HL Execution Gateway',
+      k:[['Order Types','LIMIT / CANCEL'],['Open Orders','TRACKED'],['Kill Switch','VENUE + GLOBAL'],['Reconcile','FILLS']],
+      specs:['Gateway handles order submission, cancel / replace, open-order state and fill reconciliation.','Execution is blocked when edge is negative, latency is stale, adverse selection is high or inventory caps are breached.','Every order-lifecycle event becomes training data for the market-making and risk models.'] },
+    logs:[ ['info','HL_DATA: L2 book delta normalised for GOLD market'],['warn','HL_MM: Spread widened after adverse-selection score increased'],['exec','HL_EXEC: Cancel / replace acknowledged; fill reconciliation pending'],['info','HL_MARKOUT: Passive fill queued for 5s / 30s / 120s markout window'] ]
+  },
+  prediction: {
+    title: 'Architecture flow · prediction-market execution',
+    caption: 'Prediction-market infrastructure supports <strong>Polymarket</strong> and <strong>Kalshi</strong> through compliant regional gateways, fair-value comparison, risk-gated execution and settlement reconciliation. Price-lag arb sits here as a Tier 1·2 bridge.',
+    nodes: ['Event / Odds Feeds','Market Normalisation','Fair Value Engine','PM / Kalshi Gateway'],
+    subs: ['Books · Odds · Results','Tokens · Contracts · Events','Price-Lag · Sports Models','CLOB · API · Reconcile'],
+    icons: ['fa-list-check','fa-diagram-project','fa-scale-balanced','fa-building-columns'],
+    desc: 'Prediction-market orders route only when event mapping, data freshness, expected edge, liquidity and settlement checks all pass. Venue restrictions are respected by design.',
+    limit: 250, advLimit: 75,
+    data: { header:'Event, Odds & Market Feeds',
+      k:[['Feed Types','BOOKS / ODDS'],['Results','TRACKED'],['Mapping','REQUIRED'],['Staleness','MONITORED']],
+      specs:['Captures prediction-market books, sharp reference prices, odds feeds, event metadata and results data.','Polymarket and Kalshi are treated as venue adapters into the same market-normalisation pipeline.','No architecture depends on geoblocking workarounds, restricted-jurisdiction routing or proxy language.'] },
+    compute: { header:'Market Normalisation',
+      k:[['PM Region','EU COMPLIANT'],['Kalshi Region','US GATEWAY'],['Contract State','RECONCILED'],['Event IDs','MAPPED']],
+      specs:['Polymarket deployment uses compliant EU regions such as Ireland or Frankfurt while respecting venue restrictions.','Kalshi deployment uses a US execution gateway, with API or FIX support where commercially and technically appropriate.','Event IDs, token IDs, contracts, outcomes and settlement states are normalised before any strategy can trade.'] },
+    engine: { header:'Fair Value & Price Discovery Engine',
+      k:[['Strategy Set','CAPPED'],['Sharp Compare','ACTIVE'],['Liquidity','CHECKED'],['Edge Decay','MODELLED']],
+      specs:['Compares prediction-market prices with sharp books, exchange prices and internal sports / event models.','Price-lag arb is explicitly modelled as decaying over time as competition and market efficiency improve.','Durable edge is expected to come from research quality, execution quality and disciplined capital allocation.'] },
+    exec: { header:'Prediction-Market Execution Gateway',
+      k:[['Gateways','PM / KALSHI'],['Orders','RISK-GATED'],['Settlement','MONITORED'],['Reconcile','OPEN ORDERS']],
+      specs:['Routes orders only when fair value, liquidity, venue exposure and event-state checks pass.','Maintains reconciliation across open orders, fills, balances, CLOB state and settlement status.','Designed for sports / event strategies and price discovery, not blind market making across every market.'] },
+    logs:[ ['info','PM_FAIR_VALUE: Sharp-book comparison updated for NFL market'],['info','EVENT_MAP: Kalshi contract matched to internal event registry'],['warn','RISK: Price-lag opportunity clipped by strategy capital cap'],['exec','KALSHI_GATEWAY: Contract state reconciled against open orders'] ]
+  },
+  research: {
+    title: 'Architecture flow · research & alpha engine',
+    caption: 'The research layer (Tier 2) converts market, odds, event, flow and alternative data into strategies that can be replayed, capped and routed through the same risk-gated execution system.',
+    nodes: ['Alternative Data','Feature Store','Backtest / Replay','Capital Allocation'],
+    subs: ['Odds · CV · Flow · Events','Labels · Markouts · Signals','Simulation · QA','Strategy Caps · Sizing'],
+    icons: ['fa-magnifying-glass-chart','fa-table-cells-large','fa-flask','fa-sliders'],
+    desc: 'Research signals do not trade directly. They become executable only after replay, QA, sizing, liquidity and strategy-level capital limits pass.',
+    limit: 300, advLimit: 80,
+    data: { header:'Alternative Data & Research Inputs',
+      k:[['Input Types','MULTI-SOURCE'],['Sports Data','MODELLED'],['Flow Data','CLASSIFIED'],['CV Inputs','RESEARCH']],
+      specs:['Ingests odds, event data, market microstructure, wallet / flow behaviour and selected computer-vision or player-level features.','Research inputs are stored separately from executable signals until validated by replay and risk checks.','The objective is proprietary trading improvement, not third-party data resale.'] },
+    compute: { header:'Feature Store & Labelling',
+      k:[['Labels','FILLS / MARKOUTS'],['Feature Store','VERSIONED'],['QA State','REQUIRED'],['Lookahead','BLOCKED']],
+      specs:['Feature store tracks labels, markouts, stale-data flags, slippage, fill quality and event outcomes.','Models are evaluated against realised execution quality rather than theoretical price edge only.','QA checks are designed to avoid lookahead bias, survivorship bias and false fill labels.'] },
+    engine: { header:'Backtesting, Replay & Signal QA',
+      k:[['Strategies','REPLAYED'],['Price Lag','DECAYING'],['Sports Alpha','CAPPED'],['CV Research','OPTIONALITY']],
+      specs:['Backtests price-lag, sharp-book inefficiency, sports model alpha, event-driven mispricing and flow-classification strategies.','Price-lag opportunity is treated as temporary and more competitive over time.','Computer vision and player-level research are long-term alpha options, not assumed to scale without evidence.'] },
+    exec: { header:'Capital Allocation & Strategy Sizing',
+      k:[['Capital Caps','STRATEGY LEVEL'],['Sizing','LIQUIDITY AWARE'],['Promotion','QA GATED'],['Execution Path','SHARED']],
+      specs:['Signals are promoted into production only after sufficient replay, live shadowing and risk review.','Position sizing respects capital availability, event concurrency, venue liquidity and strategy drawdown limits.','All approved strategies route through the shared execution gateway and reconciliation stack.'] },
+    logs:[ ['info','BACKTEST: Markout window completed for price-lag strategy'],['info','FEATURE_STORE: Player-level feature batch written for model review'],['warn','QA: Candidate signal rejected — insufficient executable liquidity'],['exec','ALLOCATOR: Strategy sizing reduced after concurrency cap triggered'] ]
+  }
+};
 
-      for (let i = 0; i < 4; i++) {
-        document.getElementById(`lbl-node-${i}`).innerText = pInfo.nodes[i];
-        document.getElementById(`sub-node-${i}`).innerText = pInfo.subs[i];
-        const icon = document.getElementById(`ico-node-${i}`);
-        icon.className = `fa-solid ${pInfo.icons[i]} arch-icon`;
-      }
+const NODE_KEYS = ['data','compute','engine','exec'];
+const PRESET = { spine:[75,4,35], hyperliquid:[84,3,42], prediction:[110,8,48], research:[150,12,52] };
 
-      if (platformId === 'spine') {
-        document.getElementById('g-lat').value = 75;
-        document.getElementById('g-edge').value = 4;
-        document.getElementById('g-adv').value = 35;
-      } else if (platformId === 'hyperliquid') {
-        document.getElementById('g-lat').value = 84;
-        document.getElementById('g-edge').value = 3;
-        document.getElementById('g-adv').value = 42;
-      } else if (platformId === 'prediction') {
-        document.getElementById('g-lat').value = 110;
-        document.getElementById('g-edge').value = 8;
-        document.getElementById('g-adv').value = 48;
-      } else if (platformId === 'research') {
-        document.getElementById('g-lat').value = 150;
-        document.getElementById('g-edge').value = 12;
-        document.getElementById('g-adv').value = 52;
-      }
+function switchEnv(envId, btn){
+  currentEnv = envId;
+  document.querySelectorAll('.router-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const e = ENV[envId];
+  document.getElementById('flowTitle').textContent = e.title;
+  document.getElementById('caption').innerHTML = e.caption;
+  document.getElementById('gateDesc').textContent = e.desc;
+  for(let i=0;i<4;i++){
+    document.getElementById('lbl-'+i).innerHTML = e.nodes[i];
+    document.getElementById('sub-'+i).textContent = e.subs[i];
+    document.getElementById('ico-'+i).className = 'fa-solid ' + e.icons[i] + ' ico';
+  }
+  const [l,ed,a] = PRESET[envId];
+  document.getElementById('lat').value = l;
+  document.getElementById('edge').value = ed;
+  document.getElementById('adv').value = a;
+  selectNode('data');
+}
 
-      document.querySelectorAll('.arch-node').forEach(n => n.classList.remove('active'));
-      document.getElementById('node-0').classList.add('active');
-      selectNode('data');
-    }
+function selectNode(nodeId){
+  currentNode = nodeId;
+  document.querySelectorAll('.node').forEach(n=>n.classList.remove('active'));
+  document.getElementById('node-'+NODE_KEYS.indexOf(nodeId)).classList.add('active');
+  const d = ENV[currentEnv][nodeId];
+  document.getElementById('detailHeader').textContent = d.header;
+  const detail = document.getElementById('detail');
+  detail.style.opacity = 0;
+  setTimeout(()=>{
+    const kpis = d.k.map((kv,i)=>`<div class="kpi-box"><div class="kpi-lbl">${kv[0]}</div><div class="kpi-val ${i===0?'accent':''}">${kv[1]}</div></div>`).join('');
+    const specs = d.specs.map(s=>`<li class="spec-item"><i class="fa-solid fa-circle"></i><span>${s}</span></li>`).join('');
+    detail.innerHTML = `<div class="kpi-grid">${kpis}</div><ul class="spec-list">${specs}</ul>`;
+    detail.style.opacity = 1;
+    updateGate();
+  }, 130);
+}
 
-    function selectNode(nodeId) {
-      currentNode = nodeId;
-      document.querySelectorAll('.arch-node').forEach(n => n.classList.remove('active'));
-      const indexMap = { data: 0, compute: 1, engine: 2, exec: 3 };
-      document.getElementById(`node-${indexMap[nodeId]}`).classList.add('active');
+function updateGate(){
+  const lat = parseInt(document.getElementById('lat').value,10);
+  const edge = parseInt(document.getElementById('edge').value,10);
+  const adv = parseInt(document.getElementById('adv').value,10);
+  document.getElementById('latVal').textContent = lat + ' ms';
+  document.getElementById('edgeVal').textContent = edge + ' bps';
+  document.getElementById('advVal').textContent = adv + ' / 100';
+  const e = ENV[currentEnv];
+  const res = document.getElementById('gateResult');
+  let failed=false, reason='';
+  if(lat >= e.limit){ failed=true; reason='Data freshness limit breached (>'+e.limit+' ms)'; }
+  else if(edge <= 0){ failed=true; reason='Expected net edge ≤ 0 bps'; }
+  else if(adv > e.advLimit){ failed=true; reason='Adverse-selection score too high (>'+e.advLimit+')'; }
+  if(failed){
+    res.className = 'gate-status failed';
+    res.innerHTML = '<i class="fa-solid fa-ban" style="margin-right:6px;"></i>Trade blocked — ' + reason;
+  } else {
+    res.className = 'gate-status';
+    res.innerHTML = '<i class="fa-solid fa-circle-check" style="margin-right:6px;"></i>Risk gate passed';
+  }
+}
 
-      const data = platformData[currentPlatform][nodeId];
-      const view = document.getElementById('detail-view');
-      document.getElementById('detail-header').innerText = 'Node Detail: ' + data.header;
+switchEnv('spine', document.querySelector('.router-btn'));
 
-      view.style.opacity = 0;
-      setTimeout(() => {
-        const specHTML = data.specs.map(spec => `<li class="spec-item"><i class="fa-solid fa-microchip"></i><span>${spec}</span></li>`).join('');
-        view.innerHTML = `
-          <div class="kpi-grid">
-            <div class="kpi-box"><div class="kpi-lbl">${data.kpi1.label}</div><div class="kpi-val text-glow ${data.kpi1.flicker ? 'number-flicker' : ''}">${data.kpi1.val}</div></div>
-            <div class="kpi-box"><div class="kpi-lbl">${data.kpi2.label}</div><div class="kpi-val text-glow ${data.kpi2.flicker ? 'number-flicker' : ''}">${data.kpi2.val}</div></div>
-            <div class="kpi-box"><div class="kpi-lbl">${data.kpi3.label}</div><div class="kpi-val text-glow">${data.kpi3.val}</div></div>
-            <div class="kpi-box"><div class="kpi-lbl">${data.kpi4.label}</div><div class="kpi-val text-glow">${data.kpi4.val}</div></div>
-          </div>
-          <ul class="spec-list">${specHTML}</ul>
-        `;
-        view.style.opacity = 1;
-        updateGauntlet();
-      }, 140);
-    }
-
-    function updateGauntlet() {
-      const lat = parseInt(document.getElementById('g-lat').value, 10);
-      const edge = parseInt(document.getElementById('g-edge').value, 10);
-      const adv = parseInt(document.getElementById('g-adv').value, 10);
-
-      document.getElementById('g-lat-val').innerText = lat + ' ms';
-      document.getElementById('g-edge-val').innerText = edge + ' bps';
-      document.getElementById('g-adv-val').innerText = adv + ' / 100';
-
-      const res = document.getElementById('g-result');
-      const p = platformData[currentPlatform];
-      let failed = false;
-      let failReason = '';
-
-      if (lat >= p.limit) { failed = true; failReason = `DATA FRESHNESS LIMIT BREACHED (&gt;${p.limit}ms)`; }
-      else if (edge <= 0) { failed = true; failReason = 'EXPECTED NET EDGE <= 0 BPS'; }
-      else if (adv > p.advLimit) { failed = true; failReason = `ADVERSE SELECTION SCORE TOO HIGH (&gt;${p.advLimit})`; }
-
-      if (failed) {
-        res.className = 'gauntlet-status failed';
-        res.innerHTML = `<i class='fa-solid fa-ban' style='margin-right: 5px;'></i> TRADE BLOCKED : ${failReason}`;
-      } else {
-        res.className = 'gauntlet-status';
-        res.innerHTML = `<i class='fa-solid fa-check-circle' style='margin-right: 5px;'></i> RISK GATE PASSED`;
-      }
-    }
-
-    switchPlatform('spine', document.querySelector('.router-btn'));
-
-    const terminal = document.getElementById('terminal');
-    function addLog() {
-      const now = new Date();
-      const time = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}.${now.getMilliseconds().toString().padStart(3,'0')}`;
-      const logsArray = platformData[currentPlatform].logs;
-      const log = logsArray[Math.floor(Math.random() * logsArray.length)];
-      const isFailed = document.getElementById('g-result').classList.contains('failed');
-      const div = document.createElement('div');
-      div.className = 'log-entry';
-
-      if (isFailed) {
-        div.innerHTML = `<span class="log-time">[${time}]</span><span class="log-level-crit">[CRIT]</span><span class="log-msg" style="color:var(--danger)">RISK_GATE: Candidate order blocked before execution; manual review not required.</span>`;
-      } else {
-        div.innerHTML = `<span class="log-time">[${time}]</span><span class="log-level-${log.level.toLowerCase()}">[${log.level}]</span><span class="log-msg">${log.msg}</span>`;
-      }
-
-      terminal.appendChild(div);
-      if (terminal.children.length > 35) terminal.removeChild(terminal.firstChild);
-      terminal.scrollTop = terminal.scrollHeight;
-      setTimeout(addLog, Math.random() * 1400 + 450);
-    }
-    setTimeout(addLog, 800);
-  </script>
+// Event stream
+const term = document.getElementById('term');
+function addLog(){
+  const now = new Date();
+  const t = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}.${String(now.getMilliseconds()).padStart(3,'0')}`;
+  const logs = ENV[currentEnv].logs;
+  const failed = document.getElementById('gateResult').classList.contains('failed');
+  const div = document.createElement('div');
+  div.className = 'log';
+  if(failed){
+    div.innerHTML = `<span class="log-time">[${t}]</span><span class="log-lvl crit">CRIT</span><span class="log-msg crit">RISK_GATE: Candidate order blocked before execution; routed to manual review.</span>`;
+  } else {
+    const lg = logs[Math.floor(Math.random()*logs.length)];
+    div.innerHTML = `<span class="log-time">[${t}]</span><span class="log-lvl ${lg[0]}">${lg[0].toUpperCase()}</span><span class="log-msg">${lg[1]}</span>`;
+  }
+  term.appendChild(div);
+  if(term.children.length > 40) term.removeChild(term.firstChild);
+  term.scrollTop = term.scrollHeight;
+  setTimeout(addLog, Math.random()*1400 + 500);
+}
+setTimeout(addLog, 700);
+</script>
 </body>
 </html>
