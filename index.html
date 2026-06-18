@@ -138,7 +138,6 @@ body{
 /* Event stream */
 .term-panel{ grid-column:1/2; grid-row:2/3; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
 .term{
-  /* Keep the simulated stream inside its own scroll box so it cannot stretch the grid and move the risk gate. */
   flex:0 0 clamp(280px,34vh,360px); min-height:0; max-height:clamp(280px,34vh,360px);
   background:var(--ink); border:1px solid var(--line); border-radius:6px;
   padding:16px 18px; overflow-y:auto; overscroll-behavior:contain; font-family:var(--mono); font-size:0.76rem; line-height:1.62;
@@ -153,12 +152,45 @@ body{
 .log-msg{ color:var(--cream); }
 .log-msg.crit{ color:#E6A293; }
 
+/* Cost panel (build tiers + model ramp) */
+.cost-wrap{ margin-top:18px; }
+.cost-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:18px; }
+.tier-card{ background:var(--card); border:1px solid var(--line); border-radius:6px; padding:18px 20px; display:flex; flex-direction:column; gap:10px; position:relative; }
+.tier-card.competitive{ border-color:rgba(46,90,172,0.4); background:linear-gradient(180deg,rgba(46,90,172,0.04) 0%,var(--card) 46%); }
+.tier-card.top{ border-color:rgba(181,137,61,0.42); background:linear-gradient(180deg,rgba(181,137,61,0.05) 0%,var(--card) 46%); }
+.tier-tag{ font-family:var(--mono); font-size:0.62rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--accent); }
+.tier-card.top .tier-tag{ color:var(--gold); }
+.tier-name{ font-family:var(--serif); font-weight:600; font-size:1.2rem; color:var(--ink); line-height:1.15; }
+.tier-cost{ font-family:var(--mono); font-size:1.05rem; font-weight:600; color:var(--ink); letter-spacing:0.01em; }
+.tier-cost span{ font-size:0.72rem; color:var(--muted); font-weight:400; }
+.tier-lat{ font-family:var(--mono); font-size:0.68rem; color:var(--muted); letter-spacing:0.03em; border-top:1px dashed var(--line); padding-top:9px; margin-top:2px; }
+.tier-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:7px; }
+.tier-list li{ font-size:0.82rem; color:var(--text); line-height:1.45; display:flex; gap:8px; align-items:baseline; }
+.tier-list li::before{ content:"—"; color:var(--accent); flex:0 0 auto; }
+.tier-card.top .tier-list li::before{ color:var(--gold); }
+
+.cost-table-wrap{ background:var(--card); border:1px solid var(--line); border-radius:6px; padding:20px 22px; }
+.cost-chartbox{ position:relative; width:100%; height:230px; margin:6px 0 4px; }
+.cost-source{ font-family:var(--mono); font-size:0.68rem; color:var(--faint); line-height:1.5; letter-spacing:0.02em; margin-top:12px; }
+.cost-source strong{ color:var(--muted); font-weight:500; }
+
+table.costtbl{ width:100%; border-collapse:collapse; font-size:0.82rem; margin-top:4px; }
+table.costtbl th, table.costtbl td{ padding:9px 10px; text-align:right; border-bottom:1px solid var(--line); color:var(--text); }
+table.costtbl th{ font-family:var(--mono); font-size:0.62rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); background:var(--paper-2); }
+table.costtbl td:first-child, table.costtbl th:first-child{ text-align:left; color:var(--ink); }
+table.costtbl tr:hover{ background:rgba(46,90,172,0.035); }
+table.costtbl tr.total-row td{ font-family:var(--mono); font-weight:600; color:var(--ink); border-top:1.5px solid var(--ink); border-bottom:none; }
+
 .foot-note{ font-family:var(--mono); font-size:0.7rem; letter-spacing:0.04em; color:var(--faint); margin-top:18px; line-height:1.5; text-align:center; }
 
 ::-webkit-scrollbar{ width:7px; height:7px; }
 ::-webkit-scrollbar-track{ background:transparent; }
 ::-webkit-scrollbar-thumb{ background:var(--line); border-radius:4px; }
 .term::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.18); }
+
+/* View switch: architecture vs cost */
+.view{ display:none; }
+.view.active{ display:block; }
 
 @media (max-width:1180px){
   html,body{ height:auto; }
@@ -172,6 +204,7 @@ body{
   .flow{ overflow-x:auto; }
   .node{ flex:0 0 180px; }
   .edge{ flex:0 0 30px; }
+  .cost-grid{ grid-template-columns:1fr; }
 }
 @media (max-width:680px){
   .shell{ padding:16px; }
@@ -182,7 +215,6 @@ body{
 </style>
 </head>
 <body>
-
 <div class="shell">
 
   <!-- HEADER -->
@@ -195,20 +227,22 @@ body{
       </div>
     </div>
     <div class="head-meta">
-      <span class="tag-pill"><span class="dot"></span>Build roadmap · risk-gated</span>
-      <span class="tag-pill"><i class="fa-solid fa-sitemap"></i>Architecture · v3.0</span>
+      <span class="tag-pill"><span class="dot"></span>Sports prediction markets · risk-gated</span>
+      <span class="tag-pill"><i class="fa-solid fa-sitemap"></i>Architecture · v4.0</span>
     </div>
   </div>
 
   <!-- ENVIRONMENT ROUTER -->
   <div class="router">
     <button class="router-btn active" onclick="switchEnv('spine', this)"><i class="fa-solid fa-network-wired"></i>Shared Trading Spine <span class="tier">CORE</span></button>
-    <button class="router-btn" onclick="switchEnv('hyperliquid', this)"><i class="fa-solid fa-layer-group"></i>Hyperliquid MM <span class="tier">TIER 1</span></button>
-    <button class="router-btn" onclick="switchEnv('prediction', this)"><i class="fa-solid fa-chart-pie"></i>Prediction Markets <span class="tier">TIER 1 · 2</span></button>
-    <button class="router-btn" onclick="switchEnv('research', this)"><i class="fa-solid fa-flask"></i>Research &amp; Alpha <span class="tier">TIER 2</span></button>
+    <button class="router-btn" onclick="switchEnv('polymarket', this)"><i class="fa-solid fa-cube"></i>Polymarket Execution <span class="tier">TIER 1 · 2</span></button>
+    <button class="router-btn" onclick="switchEnv('kalshi', this)"><i class="fa-solid fa-building-columns"></i>Kalshi Execution <span class="tier">TIER 1 · 2</span></button>
+    <button class="router-btn" onclick="switchEnv('research', this)"><i class="fa-solid fa-flask"></i>Research &amp; EV Models <span class="tier">TIER 2</span></button>
+    <button class="router-btn" onclick="showCost(this)"><i class="fa-solid fa-coins"></i>Build Tiers &amp; Cost <span class="tier">CAPEX</span></button>
   </div>
 
-  <!-- MAIN GRID -->
+  <!-- ARCHITECTURE VIEW -->
+  <div class="view active" id="view-arch">
   <div class="grid">
 
     <!-- FLOW MAP -->
@@ -222,7 +256,7 @@ body{
           <span class="stage">01 · Ingest</span>
           <i class="fa-solid fa-plug-circle-bolt ico" id="ico-0"></i>
           <div class="nlbl" id="lbl-0">Venue Adapters</div>
-          <div class="nsub" id="sub-0">HL · Polymarket · Kalshi · Odds</div>
+          <div class="nsub" id="sub-0">Polymarket · Kalshi · Odds</div>
         </div>
         <div class="edge"></div>
         <div class="node" id="node-1" onclick="selectNode('compute')">
@@ -236,7 +270,7 @@ body{
           <span class="stage">03 · Decide</span>
           <i class="fa-solid fa-shield-halved ico" id="ico-2"></i>
           <div class="nlbl" id="lbl-2">Strategy + Risk Engine</div>
-          <div class="nsub" id="sub-2">Quoting · Alpha · Risk</div>
+          <div class="nsub" id="sub-2">Quoting · EV · Risk</div>
         </div>
         <div class="edge"></div>
         <div class="node" id="node-3" onclick="selectNode('exec')">
@@ -247,7 +281,7 @@ body{
         </div>
       </div>
       <p class="arch-caption" id="caption">
-        One unified trading spine supports <strong>market making</strong>, <strong>prediction-market execution</strong> and <strong>proprietary alpha</strong> through the same data, replay, risk and reconciliation stack.
+        One unified trading spine supports <strong>spread trading / market making</strong> and <strong>proprietary EV models</strong> on Polymarket and Kalshi through the same data, replay, risk and reconciliation stack.
       </p>
     </div>
 
@@ -266,11 +300,11 @@ body{
 
         <div class="slider-group">
           <div class="slider-head"><label>Data freshness / latency</label><span class="val" id="latVal">75 ms</span></div>
-          <input type="range" class="slider" id="lat" min="1" max="500" value="75" oninput="updateGate()">
+          <input type="range" class="slider" id="lat" min="1" max="2500" value="75" oninput="updateGate()">
         </div>
         <div class="slider-group">
-          <div class="slider-head"><label>Expected net edge</label><span class="val" id="edgeVal">4 bps</span></div>
-          <input type="range" class="slider" id="edge" min="-5" max="30" value="4" oninput="updateGate()">
+          <div class="slider-head"><label>Expected net edge</label><span class="val" id="edgeVal">11 bps</span></div>
+          <input type="range" class="slider" id="edge" min="-5" max="30" value="11" oninput="updateGate()">
         </div>
         <div class="slider-group">
           <div class="slider-head"><label>Adverse-selection score</label><span class="val" id="advVal">35 / 100</span></div>
@@ -289,99 +323,169 @@ body{
     </div>
 
   </div>
+  </div>
 
-  <p class="foot-note">© City Road Research Ltd. · Illustrative target architecture. Latency, region and capacity figures are design targets, not guarantees, and should be validated against live evidence.</p>
+  <!-- COST VIEW -->
+  <div class="view" id="view-cost">
+    <div class="cost-wrap">
+      <div class="cost-grid">
+        <div class="tier-card">
+          <span class="tier-tag">Tier 01 · Lean</span>
+          <div class="tier-name">Launch &amp; validation</div>
+          <div class="tier-cost">≈ $18k <span>/ month</span></div>
+          <ul class="tier-list">
+            <li>Single-region cloud compute (managed EC2 / VPS class)</li>
+            <li>Dev-tier odds feed ($30&ndash;$500/mo class) + free Polymarket / Kalshi REST &amp; WebSocket</li>
+            <li>Shared Polygon RPC; ClickHouse + Postgres on managed instances</li>
+            <li>REST polling + WebSocket; reconciliation over public endpoints</li>
+          </ul>
+          <div class="tier-lat">Latency target — seconds. Event-driven, not a speed race.</div>
+        </div>
+        <div class="tier-card competitive">
+          <span class="tier-tag">Tier 02 · Competitive</span>
+          <div class="tier-name">Scaled deployment</div>
+          <div class="tier-cost">≈ $40&ndash;58k <span>/ month</span></div>
+          <ul class="tier-list">
+            <li>Multi-AZ reserved compute; isolated execution + research planes</li>
+            <li>Mid / streaming odds + sharp-reference feeds (SSE / WebSocket)</li>
+            <li>Kalshi FIX 4.4 session; dedicated Polygon archive RPC + indexer</li>
+            <li>Polymarket RTDS market-maker feed; redundant WebSocket sessions</li>
+          </ul>
+          <div class="tier-lat">Latency target — sub-second on WebSocket; FIX for Kalshi order flow.</div>
+        </div>
+        <div class="tier-card top">
+          <span class="tier-tag">Tier 03 · Top-tier</span>
+          <div class="tier-name">Mature capacity</div>
+          <div class="tier-cost">≈ $70&ndash;85k <span>/ month</span></div>
+          <ul class="tier-list">
+            <li>Single-tenant bare-metal (.metal) where it helps; PTP time-sync</li>
+            <li>Enterprise odds / sharp data ($3k&ndash;$10k+/mo class, multi-sport)</li>
+            <li>Dedicated RPC + redundancy; full replay &amp; markout analytics</li>
+            <li>Capacity reservations; venue-floor execution where it adds edge</li>
+          </ul>
+          <div class="tier-lat">Latency target — venue-floor. On-chain settlement caps the real benefit.</div>
+        </div>
+      </div>
+
+      <div class="cost-table-wrap">
+        <div class="panel-head" style="margin-bottom:14px;">
+          <span class="panel-title"><span class="h-bar"></span>Infrastructure &amp; data cost ramp — from financial model</span>
+          <span class="panel-rn">36-month build · $1.885M total</span>
+        </div>
+        <div class="cost-chartbox"><canvas id="costChart"></canvas></div>
+        <table class="costtbl">
+          <thead>
+            <tr><th>Driver</th><th>Launch (M1)</th><th>Mid (M19)</th><th>Mature (M36)</th><th>3Y total</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Production execution servers</td><td>$2,500</td><td>$8,000</td><td>$12,000</td><td>$273,000</td></tr>
+            <tr><td>Database / replay / tick storage</td><td>$1,500</td><td>$8,000</td><td>$12,000</td><td>$258,000</td></tr>
+            <tr><td>Monitoring / logging / alerts</td><td>$1,000</td><td>$4,000</td><td>$6,000</td><td>$132,000</td></tr>
+            <tr><td>Odds / sharp / reference data</td><td>$4,000</td><td>$15,000</td><td>$25,000</td><td>$504,000</td></tr>
+            <tr><td>Research compute / backtesting</td><td>$1,000</td><td>$5,000</td><td>$8,000</td><td>$166,500</td></tr>
+            <tr><td>Blockchain RPC / indexing</td><td>$750</td><td>$3,000</td><td>$4,000</td><td>$96,750</td></tr>
+            <tr><td>Tokens / on-chain collateral &amp; gas</td><td>$7,500</td><td>$12,500</td><td>$17,500</td><td>$455,000</td></tr>
+            <tr class="total-row"><td>Total monthly run-rate</td><td>$18,250</td><td>$55,500</td><td>$84,500</td><td>$1,885,250</td></tr>
+          </tbody>
+        </table>
+        <p class="cost-source"><strong>Source:</strong> City Road Research financial model (infrastructure &amp; data operating ramp, Oct 2026&ndash;Sep 2029). <strong>Per-driver market anchors (researched, June 2026):</strong> Polymarket &amp; Kalshi trading APIs are free (Kalshi charges ~2&cent;/contract; Kalshi FIX 4.4 for institutional flow); sports odds feeds run ~$30&ndash;$500/mo dev-tier (The Odds API, SportsGameOdds) to ~$3k&ndash;$10k+/mo enterprise (Unabated, OddsJam, OpticOdds, Sportradar); AWS bare-metal &amp; reserved compute and Polygon archive RPC per published 2026 rates. The <strong>Tokens</strong> line is on-chain working capital (USDC.e collateral, POL gas) specific to Polymarket settlement, not a third-party fee. Figures are modelled / illustrative design targets, validated against live evidence as the programme scales Lean &rarr; Competitive &rarr; Top-tier.</p>
+      </div>
+    </div>
+  </div>
+
+  <p class="foot-note">&copy; City Road Research Ltd. · Illustrative target architecture. Latency, region and capacity figures are design targets, not guarantees, and should be validated against live evidence.</p>
 
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 let currentEnv = 'spine';
 let currentNode = 'data';
+let costChart = null;
 
 const ENV = {
   spine: {
     title: 'Architecture flow · shared trading spine',
-    caption: 'One unified trading spine supports <strong>market making</strong>, <strong>prediction-market execution</strong> and <strong>proprietary alpha</strong> through the same data, replay, risk and reconciliation stack.',
+    caption: 'One unified trading spine supports <strong>spread trading / market making</strong> and <strong>proprietary EV models</strong> on Polymarket and Kalshi through the same data, replay, risk and reconciliation stack.',
     nodes: ['Venue Adapters','Data Lake &amp; Replay','Strategy + Risk Engine','Execution Gateway'],
-    subs: ['HL · Polymarket · Kalshi · Odds','ClickHouse · Postgres · S3','Quoting · Alpha · Risk','Routing · Reconcile'],
+    subs: ['Polymarket · Kalshi · Odds','ClickHouse · Postgres · S3','Quoting · EV · Risk','Routing · Reconcile'],
     icons: ['fa-plug-circle-bolt','fa-database','fa-shield-halved','fa-route'],
-    desc: 'Every market data feed, order, fill and risk event is normalised into one event model before being used for quoting, alpha research, backtesting, capital allocation and execution.',
-    limit: 180, advLimit: 70,
+    desc: 'Every market-data feed, order, fill and risk event from both venues is normalised into one event model before being used for quoting, EV research, backtesting, capital allocation and execution.',
+    limit: 1500, advLimit: 70,
     data: { header:'Venue Adapter Layer',
-      k:[['Adapter Scope','4 VENUES'],['Event Model','UNIFIED'],['Data Status','PLANNED'],['Risk Route','REQUIRED']],
-      specs:['Normalises Hyperliquid books, prediction-market contracts, odds feeds and reference prices into one schema.','Separates venue-specific API logic from the common strategy, risk, replay and reconciliation layers.','Captures orders, fills, cancellations and venue events as first-class data, not just trading outputs.'] },
+      k:[['Adapter Scope','2 VENUES'],['Event Model','UNIFIED'],['Data Status','PLANNED'],['Risk Route','REQUIRED']],
+      specs:['Normalises Polymarket on-chain CLOB books, Kalshi exchange books, sharp reference odds and stats feeds into one schema.','Separates venue-specific logic (EIP-712 signing for Polymarket, FIX / REST for Kalshi) from the common strategy, risk, replay and reconciliation layers.','Captures orders, fills, cancellations and venue events as first-class data, not just trading outputs.'] },
     compute: { header:'Data Lake, Hot State & Replay',
       k:[['Tick Store','CLICKHOUSE'],['Metadata','POSTGRES'],['Hot State','REDIS'],['Archive','S3 / PARQUET']],
-      specs:['ClickHouse stores tick data, reconstructed books, markouts and fill analytics for strategy review.','Postgres tracks strategy configuration, venue metadata, trade state and capital allocation settings.','S3 / Parquet archive enables replay, reproducible research and longer-horizon model validation.'] },
+      specs:['ClickHouse stores tick data, reconstructed books, markouts and fill analytics for strategy review across both venues.','Postgres tracks strategy configuration, venue metadata, trade state and capital allocation settings.','S3 / Parquet archive enables replay, reproducible research and longer-horizon EV-model validation.'] },
     engine: { header:'Strategy + Risk Engine',
-      k:[['Strategy State','RISK-GATED'],['Capital Caps','ENFORCED'],['Drawdown','LIMITED'],['Quote State','DYNAMIC']],
-      specs:['Runs market-making logic, price-lag signals, sports / event models and research-derived modules behind one risk layer.','Risk daemon enforces venue exposure, strategy exposure, stale-data checks, drawdown controls and liquidity-pull rules.','Capital allocation is explicit: each strategy receives capped sizing rather than assumed unlimited opportunity capture.'] },
+      k:[['Strategy State','RISK-GATED'],['Capital Caps','ENFORCED'],['Net Edge Floor','11 BPS'],['Quote State','DYNAMIC']],
+      specs:['Runs spread / market-making logic, price-lag signals and sports / event EV models behind one risk layer.','Risk daemon enforces venue exposure, strategy exposure, stale-data checks, drawdown controls and liquidity-pull rules.','Capital allocation is explicit: each strategy receives capped sizing rather than assumed unlimited opportunity capture.'] },
     exec: { header:'Execution, Reconciliation & Controls',
       k:[['Order Path','GATED'],['Reconcile','REQUIRED'],['Kill Switch','GLOBAL'],['Audit Trail','PERSISTED']],
-      specs:['Execution gateways submit, amend and cancel orders only after risk checks pass.','Reconciliation compares venue orders, fills, balances, settlement status and internal expected state.','Global and strategy-level kill switches can block trading, cancel exposure and force manual review.'] },
-    logs:[ ['info','EVENT_BUS: Normalised HL book update into unified market event schema'],['info','REPLAY: Stored order-book delta batch to ClickHouse'],['exec','RISK: Venue exposure within configured limits'],['warn','RECON: Fill ledger awaiting settlement confirmation for prediction-market leg'] ]
+      specs:['Execution gateways submit, amend and cancel orders only after risk checks pass on the relevant venue.','Reconciliation compares venue orders, fills, balances, settlement status and internal expected state.','Global and strategy-level kill switches can block trading, cancel exposure and force manual review.'] },
+    logs:[ ['info','EVENT_BUS: Normalised Polymarket book update into unified market event schema'],['info','REPLAY: Stored order-book delta batch to ClickHouse'],['exec','RISK: Venue exposure within configured limits'],['warn','RECON: Fill ledger awaiting on-chain settlement confirmation for Polymarket leg'] ]
   },
-  hyperliquid: {
-    title: 'Architecture flow · Hyperliquid market making',
-    caption: 'Hyperliquid is the primary <strong>cashflow and execution-data engine</strong> (Tier 1), focused on selected markets where spread, depth, rebates and adverse-selection conditions are attractive.',
-    nodes: ['HL Market Data','Local State &amp; Replay','Quoting + Inventory','HL Execution Gateway'],
-    subs: ['L2 Books · Trades · Oracle','Tokyo Node · ClickHouse','Fair Value · Skew · Risk','Orders · Cancels · Fills'],
-    icons: ['fa-satellite-dish','fa-server','fa-chart-line','fa-bolt'],
-    desc: 'Primary market-making path. Quotes are generated only when data freshness, book depth, expected net edge and inventory limits pass the pre-trade risk gate.',
-    limit: 200, advLimit: 65,
-    data: { header:'Hyperliquid Market Data Capture',
-      k:[['Feed Scope','L2 / TRADES'],['Oracle Marks','CAPTURED'],['Freshness','TARGETED'],['Book State','REBUILT']],
-      specs:['Captures L2 books, trades, funding, oracle marks and selected tokenised-asset markets.','Market data is written into the shared event model for live trading, replay and post-trade markout analysis.','Feed gaps, stale quotes and book-depth failures route into the same risk-blocking framework.'] },
-    compute: { header:'Tokyo Local State & Replay',
-      k:[['Target Region','TOKYO'],['Node Role','NON-VALIDATOR'],['Replay Store','CLICKHOUSE'],['Deployment','TARGET']],
-      specs:['Target deployment uses Tokyo / ap-northeast-1 infrastructure for the Hyperliquid market-making stack.','A non-validator node and direct market-data capture provide local state, replay and order / fill monitoring.','The model avoids unsupported latency guarantees; measured performance is tracked as live evidence is collected.'] },
-    engine: { header:'Quoting, Inventory & Adverse Selection',
-      k:[['Quote Logic','DYNAMIC'],['Inventory','SKEWED'],['Adverse Sel.','SCORED'],['Liquidity Pull','ENABLED']],
-      specs:['Fair value, spread width and quote skew update based on volatility, depth, inventory and adverse-selection score.','Spread widening and liquidity-pull rules reduce exposure during fast markets or stale-data conditions.','Fill-based markouts measure whether quoted edge survived fees, slippage and adverse selection.'] },
-    exec: { header:'HL Execution Gateway',
-      k:[['Order Types','LIMIT / CANCEL'],['Open Orders','TRACKED'],['Kill Switch','VENUE + GLOBAL'],['Reconcile','FILLS']],
-      specs:['Gateway handles order submission, cancel / replace, open-order state and fill reconciliation.','Execution is blocked when edge is negative, latency is stale, adverse selection is high or inventory caps are breached.','Every order-lifecycle event becomes training data for the market-making and risk models.'] },
-    logs:[ ['info','HL_DATA: L2 book delta normalised for GOLD market'],['warn','HL_MM: Spread widened after adverse-selection score increased'],['exec','HL_EXEC: Cancel / replace acknowledged; fill reconciliation pending'],['info','HL_MARKOUT: Passive fill queued for 5s / 30s / 120s markout window'] ]
+  polymarket: {
+    title: 'Architecture flow · Polymarket execution',
+    caption: 'Polymarket is a <strong>hybrid-decentralised CLOB on Polygon</strong>. Orders are signed off-chain (EIP-712) and settled on-chain — so the contest is <strong>research and execution discipline</strong>, not a microsecond race.',
+    nodes: ['Market &amp; Sports Feeds','Order Signing &amp; State','Fair Value + EV','CLOB Gateway'],
+    subs: ['WSS · Gamma · RTDS','EIP-712 · HMAC · Allowances','Price-Lag · Sports EV','Signed Orders · Bor Settle'],
+    icons: ['fa-satellite-dish','fa-key','fa-scale-balanced','fa-cube'],
+    desc: 'Primary on-chain execution path. Orders route only when data freshness, expected net edge, liquidity and signature / allowance checks pass. Latency is bounded by Polygon settlement, not co-location.',
+    limit: 2000, advLimit: 70,
+    data: { header:'Polymarket Market & Sports Data',
+      k:[['Feed','WSS / GAMMA'],['Sports Channel','NATIVE'],['MM Feed','RTDS'],['Auth (reads)','NONE']],
+      specs:['Captures CLOB books and prices via the market WebSocket channel; market discovery and metadata via the unauthenticated Gamma API.','Subscribes to the dedicated sports channel and the RTDS institutional feed optimised for market makers.','Read endpoints (orderbooks, prices, spreads) need no auth; book state is rebuilt and written into the shared event model.'] },
+    compute: { header:'Order Signing, Credentials & On-chain State',
+      k:[['L1 Auth','EIP-712'],['L2 Auth','HMAC-SHA256'],['Chain','POLYGON 137'],['Collateral','USDC.e']],
+      specs:['L1 is a one-time EIP-712 wallet signature that derives API credentials; L2 HMAC-signs every trading request.','Order payloads are EIP-712 signed per order; neg-risk markets require selecting the correct verifying contract before signing.','CTF Exchange allowances for USDC.e and outcome tokens are pre-approved; an authenticated session sends heartbeats or open orders are cancelled.'] },
+    engine: { header:'Fair Value & EV Engine',
+      k:[['Strategy Set','CAPPED'],['Sharp Compare','ACTIVE'],['Edge Decay','MODELLED'],['Neg-Risk','HANDLED']],
+      specs:['Compares Polymarket prices with sharp books, Kalshi and internal sports / event models to find executable edge.','Price-lag opportunity is modelled as decaying as the venue matures; durable edge comes from research and execution quality.','Sizing respects USDC.e balance, tick size, minimum order size and per-market liquidity.'] },
+    exec: { header:'Polymarket CLOB Gateway',
+      k:[['Orders','SIGNED / GATED'],['Finality','BOR ~2s'],['Kill Switch','VENUE + GLOBAL'],['Reconcile','ON-CHAIN']],
+      specs:['Gateway submits signed limit orders (GTC / GTD / FAK) only after risk, signature and allowance checks pass.','Fills confirm on Bor (~2s soft finality); OrderFilled events on the CTF Exchange give on-chain confirmation.','Protocol-level fill rounding is normalised; settlement and open-order state are reconciled against internal expectations.'] },
+    logs:[ ['info','PM_WSS: Book delta normalised for NFL market (sports channel)'],['info','PM_AUTH: L2 HMAC headers verified; heartbeat sent to keep session live'],['warn','PM_RISK: Price-lag opportunity clipped by strategy capital cap'],['exec','PM_EXEC: Signed order matched; awaiting Bor settlement confirmation'] ]
   },
-  prediction: {
-    title: 'Architecture flow · prediction-market execution',
-    caption: 'Prediction-market infrastructure supports <strong>Polymarket</strong> and <strong>Kalshi</strong> through compliant regional gateways, fair-value comparison, risk-gated execution and settlement reconciliation. Price-lag arb sits here as a Tier 1·2 bridge.',
-    nodes: ['Event / Odds Feeds','Market Normalisation','Fair Value Engine','PM / Kalshi Gateway'],
-    subs: ['Books · Odds · Results','Tokens · Contracts · Events','Price-Lag · Sports Models','CLOB · API · Reconcile'],
-    icons: ['fa-list-check','fa-diagram-project','fa-scale-balanced','fa-building-columns'],
-    desc: 'Prediction-market orders route only when event mapping, data freshness, expected edge, liquidity and settlement checks all pass. Venue restrictions are respected by design.',
-    limit: 250, advLimit: 75,
-    data: { header:'Event, Odds & Market Feeds',
-      k:[['Feed Types','BOOKS / ODDS'],['Results','TRACKED'],['Mapping','REQUIRED'],['Staleness','MONITORED']],
-      specs:['Captures prediction-market books, sharp reference prices, odds feeds, event metadata and results data.','Polymarket and Kalshi are treated as venue adapters into the same market-normalisation pipeline.','No architecture depends on geoblocking workarounds, restricted-jurisdiction routing or proxy language.'] },
-    compute: { header:'Market Normalisation',
-      k:[['PM Region','EU COMPLIANT'],['Kalshi Region','US GATEWAY'],['Contract State','RECONCILED'],['Event IDs','MAPPED']],
-      specs:['Polymarket deployment uses compliant EU regions such as Ireland or Frankfurt while respecting venue restrictions.','Kalshi deployment uses a US execution gateway, with API or FIX support where commercially and technically appropriate.','Event IDs, token IDs, contracts, outcomes and settlement states are normalised before any strategy can trade.'] },
-    engine: { header:'Fair Value & Price Discovery Engine',
-      k:[['Strategy Set','CAPPED'],['Sharp Compare','ACTIVE'],['Liquidity','CHECKED'],['Edge Decay','MODELLED']],
-      specs:['Compares prediction-market prices with sharp books, exchange prices and internal sports / event models.','Price-lag arb is explicitly modelled as decaying over time as competition and market efficiency improve.','Durable edge is expected to come from research quality, execution quality and disciplined capital allocation.'] },
-    exec: { header:'Prediction-Market Execution Gateway',
-      k:[['Gateways','PM / KALSHI'],['Orders','RISK-GATED'],['Settlement','MONITORED'],['Reconcile','OPEN ORDERS']],
-      specs:['Routes orders only when fair value, liquidity, venue exposure and event-state checks pass.','Maintains reconciliation across open orders, fills, balances, CLOB state and settlement status.','Designed for sports / event strategies and price discovery, not blind market making across every market.'] },
-    logs:[ ['info','PM_FAIR_VALUE: Sharp-book comparison updated for NFL market'],['info','EVENT_MAP: Kalshi contract matched to internal event registry'],['warn','RISK: Price-lag opportunity clipped by strategy capital cap'],['exec','KALSHI_GATEWAY: Contract state reconciled against open orders'] ]
+  kalshi: {
+    title: 'Architecture flow · Kalshi execution',
+    caption: 'Kalshi is a <strong>CFTC-regulated US exchange</strong>. Token-bucket rate limits make true HFT impractical by design — the architecture targets <strong>reliable event-driven quoting</strong>, with FIX 4.4 for institutional order flow.',
+    nodes: ['Market Data Feeds','Session &amp; Auth','Fair Value + EV','REST / FIX Gateway'],
+    subs: ['WSS · REST · Books','API Key · 30-min Token','Sports EV · Price-Lag','Token Bucket · FIX 4.4'],
+    icons: ['fa-list-check','fa-id-card','fa-scale-balanced','fa-building-columns'],
+    desc: 'US-regulated execution path. Orders route only when event mapping, data freshness, expected edge, liquidity and settlement checks pass. Rate limits favour idle-then-burst event-driven clients.',
+    limit: 500, advLimit: 75,
+    data: { header:'Kalshi Market Data',
+      k:[['Feed','WSS / REST'],['REST Latency','50–200 ms'],['Books','TRACKED'],['Env','DEMO + PROD']],
+      specs:['Captures market books, prices and trades via the WebSocket feed; REST for snapshots, history and one-off retrieval.','REST latency is typically 50–200ms; WebSocket gives lower-latency live updates for quoting.','Base URLs and a demo environment allow full test coverage before production order flow.'] },
+    compute: { header:'Session, Auth & Rate Budget',
+      k:[['Auth','API KEY'],['Token TTL','30 MIN'],['Limits','TOKEN BUCKET'],['Tiers','VOLUME']],
+      specs:['API-key auth with tokens that expire every 30 minutes; read and write rate buckets drain independently of protocol.','Write buckets above Basic hold up to two seconds of budget — idle-then-burst suits event-driven quoting when a market moves.','Daily volume review grants higher tiers (Expert → Prestige), raising rate budget as traded volume scales.'] },
+    engine: { header:'Fair Value & EV Engine',
+      k:[['Strategy Set','CAPPED'],['Sharp Compare','ACTIVE'],['Edge Decay','MODELLED'],['Event Map','REQUIRED']],
+      specs:['Compares Kalshi contract prices with sharp books, Kalshi-vs-Polymarket spreads and internal sports / event models.','Event IDs, contracts and outcomes are mapped to the internal registry before any strategy can trade.','Durable edge is expected from research quality and disciplined capital allocation, not latency arbitrage.'] },
+    exec: { header:'Kalshi REST / FIX Gateway',
+      k:[['Order API','REST + FIX 4.4'],['Fees','~2¢ / CONTRACT'],['Kill Switch','VENUE + GLOBAL'],['Reconcile','OPEN ORDERS']],
+      specs:['REST for general order flow; FIX 4.4 for institutional, lowest-latency, high-volume order management.','Orders route only when fair value, liquidity, venue exposure and event-state checks pass; rate budget is respected to avoid throttling.','Maintains reconciliation across open orders, fills, balances and settlement status; ~2¢/contract trading fee modelled.'] },
+    logs:[ ['info','KALSHI_WSS: Book update received for NBA market'],['info','EVENT_MAP: Kalshi contract matched to internal event registry'],['warn','RISK: Write rate budget low — order batch deferred to next refill'],['exec','KALSHI_FIX: Order acknowledged; contract state reconciled against open orders'] ]
   },
   research: {
-    title: 'Architecture flow · research & alpha engine',
-    caption: 'The research layer (Tier 2) converts market, odds, event, flow and alternative data into strategies that can be replayed, capped and routed through the same risk-gated execution system.',
+    title: 'Architecture flow · research & EV-model engine',
+    caption: 'The research layer (Tier 2) converts market, odds, event and flow data into <strong>EV models</strong> that can be replayed, capped and routed through the same risk-gated execution system.',
     nodes: ['Alternative Data','Feature Store','Backtest / Replay','Capital Allocation'],
     subs: ['Odds · CV · Flow · Events','Labels · Markouts · Signals','Simulation · QA','Strategy Caps · Sizing'],
     icons: ['fa-magnifying-glass-chart','fa-table-cells-large','fa-flask','fa-sliders'],
-    desc: 'Research signals do not trade directly. They become executable only after replay, QA, sizing, liquidity and strategy-level capital limits pass.',
-    limit: 300, advLimit: 80,
+    desc: 'EV signals do not trade directly. They become executable only after replay, QA, sizing, liquidity and strategy-level capital limits pass.',
+    limit: 1500, advLimit: 80,
     data: { header:'Alternative Data & Research Inputs',
       k:[['Input Types','MULTI-SOURCE'],['Sports Data','MODELLED'],['Flow Data','CLASSIFIED'],['CV Inputs','RESEARCH']],
       specs:['Ingests odds, event data, market microstructure, wallet / flow behaviour and selected computer-vision or player-level features.','Research inputs are stored separately from executable signals until validated by replay and risk checks.','The objective is proprietary trading improvement, not third-party data resale.'] },
     compute: { header:'Feature Store & Labelling',
       k:[['Labels','FILLS / MARKOUTS'],['Feature Store','VERSIONED'],['QA State','REQUIRED'],['Lookahead','BLOCKED']],
-      specs:['Feature store tracks labels, markouts, stale-data flags, slippage, fill quality and event outcomes.','Models are evaluated against realised execution quality rather than theoretical price edge only.','QA checks are designed to avoid lookahead bias, survivorship bias and false fill labels.'] },
+      specs:['Feature store tracks labels, markouts, stale-data flags, slippage, fill quality and event outcomes.','Models are evaluated against realised execution quality, not theoretical price edge only.','QA checks are designed to avoid lookahead bias, survivorship bias and false fill labels.'] },
     engine: { header:'Backtesting, Replay & Signal QA',
-      k:[['Strategies','REPLAYED'],['Price Lag','DECAYING'],['Sports Alpha','CAPPED'],['CV Research','OPTIONALITY']],
-      specs:['Backtests price-lag, sharp-book inefficiency, sports model alpha, event-driven mispricing and flow-classification strategies.','Price-lag opportunity is treated as temporary and more competitive over time.','Computer vision and player-level research are long-term alpha options, not assumed to scale without evidence.'] },
+      k:[['Strategies','REPLAYED'],['Price Lag','DECAYING'],['Sports EV','CAPPED'],['CV Research','OPTIONALITY']],
+      specs:['Backtests price-lag, sharp-book inefficiency, sports EV, event-driven mispricing and flow-classification strategies.','Price-lag opportunity is treated as temporary and more competitive over time.','Computer vision and player-level research are long-term EV options, not assumed to scale without evidence.'] },
     exec: { header:'Capital Allocation & Strategy Sizing',
       k:[['Capital Caps','STRATEGY LEVEL'],['Sizing','LIQUIDITY AWARE'],['Promotion','QA GATED'],['Execution Path','SHARED']],
       specs:['Signals are promoted into production only after sufficient replay, live shadowing and risk review.','Position sizing respects capital availability, event concurrency, venue liquidity and strategy drawdown limits.','All approved strategies route through the shared execution gateway and reconciliation stack.'] },
@@ -390,12 +494,19 @@ const ENV = {
 };
 
 const NODE_KEYS = ['data','compute','engine','exec'];
-const PRESET = { spine:[75,4,35], hyperliquid:[84,3,42], prediction:[110,8,48], research:[150,12,52] };
+// Presets reflect each venue's real profile; edge default 11 bps = model net realised edge.
+const PRESET = { spine:[75,11,35], polymarket:[400,11,42], kalshi:[120,11,48], research:[150,12,52] };
+
+function showArchViews(){
+  document.getElementById('view-arch').classList.add('active');
+  document.getElementById('view-cost').classList.remove('active');
+}
 
 function switchEnv(envId, btn){
   currentEnv = envId;
   document.querySelectorAll('.router-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
+  showArchViews();
   const e = ENV[envId];
   document.getElementById('flowTitle').textContent = e.title;
   document.getElementById('caption').innerHTML = e.caption;
@@ -410,6 +521,15 @@ function switchEnv(envId, btn){
   document.getElementById('edge').value = ed;
   document.getElementById('adv').value = a;
   selectNode('data');
+}
+
+function showCost(btn){
+  currentEnv = 'cost';
+  document.querySelectorAll('.router-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('view-arch').classList.remove('active');
+  document.getElementById('view-cost').classList.add('active');
+  initCostChart();
 }
 
 function selectNode(nodeId){
@@ -436,7 +556,7 @@ function updateGate(){
   document.getElementById('latVal').textContent = lat + ' ms';
   document.getElementById('edgeVal').textContent = edge + ' bps';
   document.getElementById('advVal').textContent = adv + ' / 100';
-  const e = ENV[currentEnv];
+  const e = ENV[currentEnv] || ENV.spine;
   const res = document.getElementById('gateResult');
   let failed=false, reason='';
   if(lat >= e.limit){ failed=true; reason='Data freshness limit breached (>'+e.limit+' ms)'; }
@@ -451,6 +571,31 @@ function updateGate(){
   }
 }
 
+function initCostChart(){
+  if(costChart) return;
+  const el = document.getElementById('costChart'); if(!el || typeof Chart === 'undefined') return;
+  Chart.defaults.font.family = 'Inter';
+  Chart.defaults.color = '#717A86';
+  // Monthly totals from the financial model, Oct-2026 (M1) -> Sep-2029 (M36)
+  const months = ['M1','M3','M6','M9','M12','M15','M18','M21','M24','M27','M30','M33','M36'];
+  const total  = [18250,18250,22000,34500,43000,45500,55500,58000,70500,70500,73000,84500,84500];
+  const tokens = [7500,7500,7500,10000,12500,12500,12500,15000,15000,15000,15000,17500,17500];
+  const data   = [4000,4000,4000,10000,11000,11000,15000,15000,20000,20000,20000,25000,25000];
+  costChart = new Chart(el.getContext('2d'), {
+    type:'line',
+    data:{ labels:months,
+      datasets:[
+        {label:'Total run-rate ($/mo)', data:total, borderColor:'#2E5AAC', backgroundColor:'rgba(46,90,172,0.10)', borderWidth:3, tension:.3, fill:true, pointRadius:2},
+        {label:'Odds / sharp data', data:data, borderColor:'#B5893D', borderWidth:2, tension:.3, fill:false, pointRadius:0},
+        {label:'Tokens / on-chain collateral', data:tokens, borderColor:'#3F8765', borderWidth:2, tension:.3, fill:false, pointRadius:0, borderDash:[4,3]}
+      ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{position:'bottom', labels:{boxWidth:10, font:{size:10}}}},
+      scales:{ y:{ grid:{color:'rgba(22,32,46,0.08)'}, ticks:{callback:v=>'$'+(v/1000)+'k'}},
+               x:{ grid:{display:false}, ticks:{font:{size:9}}} } }
+  });
+}
+
 switchEnv('spine', document.querySelector('.router-btn'));
 
 // Event stream
@@ -458,8 +603,9 @@ const term = document.getElementById('term');
 function addLog(){
   const now = new Date();
   const t = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}.${String(now.getMilliseconds()).padStart(3,'0')}`;
-  const logs = ENV[currentEnv].logs;
-  const failed = document.getElementById('gateResult').classList.contains('failed');
+  const env = (currentEnv === 'cost') ? ENV.spine : ENV[currentEnv];
+  const logs = env.logs;
+  const failed = document.getElementById('gateResult').classList.contains('failed') && currentEnv !== 'cost';
   const div = document.createElement('div');
   div.className = 'log';
   if(failed){
